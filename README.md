@@ -2,6 +2,9 @@
 
 A Node Graph-Based User Interface for Large Language Models (similar to ComfyUI). You can build your own chatbot without coding.
 
+https://github.com/user-attachments/assets/4c419c0a-75d5-4d21-8383-8e63714a27f6
+
+
 ## Features
 - 🪄 **No Coding Required**: Easily create and manage workflows by simply dragging and dropping nodes, and connecting them without the need for coding skills.
 - 🎛️ **Customization**: Users can connect various LLMs and agent features to achieve high-quality results according to their preferences.
@@ -14,7 +17,8 @@ A Node Graph-Based User Interface for Large Language Models (similar to ComfyUI)
 
 ## How to Install
 
-Clone the repository from Github
+- Clone the repository from Github
+
 ```bash
 
 git clone https://github.com/skettee/mychatbot.git
@@ -22,6 +26,7 @@ git clone https://github.com/skettee/mychatbot.git
 ```
 
 - Install dependencies
+
 ```bash
 
 cd mychatbot
