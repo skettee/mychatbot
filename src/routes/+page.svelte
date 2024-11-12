@@ -23,10 +23,6 @@
         } );
     }
 
-    const handleSave = () => {
-        sessionStorage.setItem( "default", JSON.stringify( graph.serialize() ) )
-    }
-
     onMount(() => {
         const savedNode = sessionStorage.getItem("saved-node")
         if( savedNode ) {
@@ -64,18 +60,17 @@
              <ChatEditor/>
         </Pane>
         <Pane size={50}>
-            <div class="h-full flex flex-col flex-auto pb-20">
+            <div class="h-full flex flex-col flex-auto pb-20
+                        text-stone-900 bg-stone-200 
+                        dark:text-stone-200 dark:bg-stone-900">
                 <div id="messages-container"
                     bind:this={messagesContainerElement}
-                    class="text-stone-900 bg-stone-200 
-                           dark:text-stone-200 dark:bg-stone-900
-                           flex flex-col justify-between w-full flex-auto overflow-auto scrollbar h-0 max-w-full">
+                    class="flex flex-col justify-between w-full flex-auto overflow-auto scrollbar h-0 max-w-full">
                     <!-- Chat View-->
-                    <ChatView />
-                    <!-- ChatInput -->
-                    <ChatInput {handleSubmit}/>
-                    <!-- <button class="text-red-900 bg-stone-200" on:click={handleSave}>Save</button> -->
+                    <ChatView />         
                 </div>
+                <!-- ChatInput -->
+                <ChatInput {handleSubmit}/>
             </div>
         </Pane>
     </Splitpanes>

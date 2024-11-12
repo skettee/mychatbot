@@ -38,7 +38,6 @@ const mapOpenAIMessages = (messages) => {
         if (typeof (item.content) == 'object') {
             const textContentList = item.content.filter((item) => ('text' in item))
             const textContent = textContentList.reduce((start, next) => {
-                // console.log('start: ', start, 'next: ', next)
                 return { type: 'text', text: start.text + '\n---\n' + next.text}
             })
             if(textContent) return { role: item.role, content: textContent.text }
@@ -53,7 +52,6 @@ const mapAnthropicMessages = (messages) => {
         if (typeof (item.content) == 'object') {
             const textContentList = item.content.filter((item) => ('text' in item))
             const textContent = textContentList.reduce((start, next) => {
-                // console.log('start: ', start, 'next: ', next)
                 return { type: 'text', text: start.text + '\n---\n' + next.text}
             })
             if(textContent) return { role: item.role, content: textContent.text }
@@ -68,91 +66,6 @@ const mapAnthropicMessages = (messages) => {
 //
 // Node Classes
 //
-
-// ImageFile
-// class ImageFile {
-//     constructor() {
-//         this.addInput("image", "object")
-//         this.addOutput("Image", "object")
-
-//         // title
-//         this.title = "Image File"
-//         this.size = [150, LiteGraph.NODE_SLOT_HEIGHT * 4]
-
-//         // variables
-//         this._reader = new FileReader()
-//         this._image = new Image()
-//         this._imageURL = undefined
-//         this._imageKey = undefined
-//         this._data = undefined
-//         this._inputImages = undefined // [ { key: "sldjkfm...", type: "base64", media_type: "image/jpeg" } ]
-//         this._outputImage = undefined
-//     }
-//     onExecute() {
-//         this._inputImages = this.getInputData(0)
-
-//         if (this._inputImages) {
-//             let parsed = this._inputImages
-//             if (this._outputImage) {
-//                 this.setOutputData(0, [...parsed, this._outputImage])
-//             }
-//             else {
-//                 this.setOutputData(0, [...parsed])
-//             }
-//         }
-//         else if (this._outputImage) {
-//             this.setOutputData(0, [this._outputImage])
-//         }
-//         else {
-//             this.setOutputData(0, null)
-//         }
-//     }
-//     onDrawBackground(ctx) {
-//         if (this.flags.collapsed) {
-//             return
-//         }
-//         if (this._image && this.size[0] > 5 && this.size[1] > 5 && this._image.width) {
-//             ctx.drawImage(this._image, 0, LiteGraph.NODE_SLOT_HEIGHT, this.size[0], this.size[1] - LiteGraph.NODE_SLOT_HEIGHT)
-//         }
-//     }
-//     onDropFile(file) {
-//         // console.log(file)
-//         if (file.size < 5000000 &&
-//             (file.type == "image/jpeg"
-//                 || file.type == "image/png"
-//                 || file.type == "image/gif"
-//                 || file.type == "image/webp")) {
-//             this._imageURL = URL.createObjectURL(file)
-//             // Image
-//             const that = this
-//             this._image.onload = function () {
-//                 console.log("Image loaded, size: " + that._image.width + "x" + that._image.height)
-//                 this.dirty = true
-//                 that.boxcolor = "#AEA"
-//                 that.setDirtyCanvas(true)
-//                 URL.revokeObjectURL(this._imageURL)
-//             }
-//             this._image.onerror = function () {
-//                 console.log("error loading the image:" + file.name)
-//             }
-//             this._image.src = this._imageURL
-//             // document.body.appendChild(this._image);
-//             // DataURL
-//             this._reader.onloadend = () => {
-//                 // console.log(this._reader.result);
-//                 // data:image/png;base64,iVBORw0KGgoAAAANSUhEUg...
-//                 let dataurl = that._reader.result.replace('data:', '').replace(/^.+,/, '')
-
-//                 that._outputImage = { type: 'base64', media_type: file.type, data: dataurl }
-//             }
-//             this._reader.readAsDataURL(file)
-//         }
-//         else {
-//             this.boxcolor = "red"
-//             console.error("error loading audio file")
-//         }
-//     }
-// }
 
 // AudioInput
 class AudioInput {
@@ -285,8 +198,6 @@ class OpenAITranscription {
                 body: formData
             }).then((response) => response.json())
                 .then((data) => {
-                    // console.log(data)
-                    // that.trigger("text", data.text );
                     this._transcription = data.text
                     addChatMessage({
                         id: uuidv4(),
@@ -381,7 +292,7 @@ class OpenAIChat {
                 body.tool_choice = "auto"
             }
 
-            console.log('OpenAIChat', body)
+            // console.log('OpenAIChat', body)
 
             // Fatch Message
             this.fetch(body)
@@ -495,35 +406,10 @@ class OpenAIChat {
     }
 }
 
-// OpenAI Vision
-// class OpenAIPushImages {
-//     constructor() {
-//         this._images = undefined
-
-//         this.addInput("images", "object")
-//         this.addOutput("images", LiteGraph.ACTION)
-
-//         const that = this
-//         this.addWidget("button", "push", "", function () {
-//             if (that._images) {
-//                 let IMAGES = that._images.map((item) => ({ type: "image_url", image_url: { url: `data:${item.media_type};base64,${item.data}` } }))
-//                 that.trigger("images", IMAGES)
-//             }
-//         })
-//         this.title = "OpenAI Push Images"
-//     }
-//     onExecute() {
-//         this._images = this.getInputData(0)
-//     }
-// }
-
-
 // OpenAI Message Builder
 class OpenAIInput {
     constructor() {
         // Input
-        // this.addInput("text", LiteGraph.ACTION)
-        // this.addInput("images", LiteGraph.ACTION)
         this.addInput("content", LiteGraph.ACTION)
         this.addInput("agent_result", LiteGraph.ACTION)
         //Output
@@ -567,7 +453,6 @@ class OpenAIInput {
         }
         else if (action == 'agent_result') {
             const response = param
-            // console.log('result:', param)
             this.trigger('message', [{ role: 'tool', content: response.content, tool_call_id: response.id }])
         }
     }
@@ -662,7 +547,7 @@ class AnthropicChat {
                 body.tool_choice = { type: "auto" }
             }
 
-            console.log('AnthropicChat', body)
+            // console.log('AnthropicChat', body)
 
             // Fatch Message
             this.fetch(body)
@@ -773,36 +658,6 @@ class AnthropicChat {
     }
 }
 
-// Anthropic Vision
-// class AnthropicPushImages {
-//     constructor() {
-//         this._images = undefined
-
-//         this.addInput("images", "object")
-//         this.addOutput("images", LiteGraph.ACTION)
-
-//         const that = this
-//         this.addWidget("button", "push", "", function () {
-//             if (that._images) {
-//                 let IMAGES = that._images.map((item) => ({
-//                     type: "image",
-//                     source: {
-//                         type: "base64",
-//                         media_type: item.media_type,
-//                         data: item.data
-//                     }
-//                 }))
-//                 that.trigger("images", IMAGES)
-//             }
-//         })
-
-//         this.title = "Anthropic Push Images"
-//     }
-//     onExecute() {
-//         this._images = this.getInputData(0)
-//     }
-// }
-
 // Anthropic Message Builder
 class AnthropicInput {
     constructor() {
@@ -818,18 +673,6 @@ class AnthropicInput {
         return [["agent_result", LiteGraph.ACTION]]
     }
     onAction(action, param) {
-        // if (action == "images") {
-        //     this._images = param
-        // }
-        // else if (action == "text") {
-        //     if (this._images) {
-        //         this.trigger('message', [{ role: "user", content: [...this._images, { type: "text", text: param }] }])
-        //         this._images = undefined
-        //     }
-        //     else {
-        //         this.trigger('message', [{ role: "user", content: [{ type: "text", text: param }] }])
-        //     }
-        // }
         if( action == 'content' ) {
             let imageContent = []
             let textContent = []
@@ -893,7 +736,6 @@ class AnthropicInput {
 class Input {
     constructor() {
         this.addOutput("content", LiteGraph.EVENT)
-        // this.properties = {};
 
         this.title = "Chat Input";
         this.color = "#233"
@@ -941,7 +783,6 @@ class Memory {
 
 class PromptTemplate {
     constructor() {
-        // this.properties = { prompt: "" }
         this.addInput("var1", "string")
         this.addInput("var2", "string")
         this.addInput("var3", "string")
@@ -1098,6 +939,7 @@ class PrintSlot {
 //
 // Agents
 //
+
 // OpenAI Agent
 class AgentOpenAI {
     constructor() {
@@ -1201,7 +1043,8 @@ class AgentOpenAI {
                 messages: this._messages,
                 stream: true
             }
-            console.log('AgentOpenAI', body)
+            // console.log('AgentOpenAI', body)
+
             // fatch Message
             this.fetch(body)
             this._trigger = false
@@ -1240,7 +1083,6 @@ class AgentOpenAI {
                         id: that._call.id,
                         content: (that._text) ? that._text : ''
                     }
-                    // console.log('agent_result', agentResult)
                     that.trigger("agent_result", agentResult)
                 }
                 const [{ delta }] = stream.choices
@@ -1323,7 +1165,6 @@ class AgentAnthropic {
                 this._messages = [...this._messages,
                 { role: 'user', content: this._call.arguments.query }]
 
-                // console.log('agent messages', this._messages)
                 this._trigger = true
             }
         }
@@ -1371,7 +1212,7 @@ class AgentAnthropic {
                 body.system = SYSTEM
             }
 
-            console.log('AgentAnthropic', body)
+            // console.log('AgentAnthropic', body)
 
             // Fatch Message
             this.fetch(body)
@@ -1432,7 +1273,6 @@ class AgentAnthropic {
                     id: that._call.id,
                     content: (that._text) ? that._text : ''
                 }
-                // console.log('agent_result', agentResult)
                 that.trigger("agent_result", agentResult)
             })
 
@@ -1504,7 +1344,6 @@ class AgentPerplexity {
                 // add user message
                 this._messages = [...this._messages,
                 { role: 'user', content: this._call.arguments.query }]
-                // console.log('agent messages', this._messages)
                 this._trigger = true
             }
         }
@@ -1550,7 +1389,8 @@ class AgentPerplexity {
                 messages: this._messages,
                 stream: true
             }
-            console.log('AgentPerplexity', body)
+            // console.log('AgentPerplexity', body)
+
             // fatch Message
             this.fetch(body)
             this._trigger = false
@@ -1586,7 +1426,6 @@ class AgentPerplexity {
                         id: that._call.id,
                         content: (that._text) ? that._text : ''
                     }
-                    // console.log('agent_result', agentResult)
                     that.trigger("agent_result", agentResult)
                 }
                 const [{ delta }] = stream.choices
@@ -1610,7 +1449,7 @@ class AgentPerplexity {
     }
 }
 
-//register in the system
+// Register in the system
 
 // Chat
 LiteGraph.registerNodeType("chat/input", Input)
@@ -1619,18 +1458,15 @@ LiteGraph.registerNodeType("chat/memory", Memory)
 LiteGraph.registerNodeType("openai/input", OpenAIInput)
 LiteGraph.registerNodeType("openai/chat", OpenAIChat)
 LiteGraph.registerNodeType("openai/audio", OpenAITranscription)
-// LiteGraph.registerNodeType("openai/vision", OpenAIPushImages)
 // Anthropic
 LiteGraph.registerNodeType("anthropic/input", AnthropicInput)
 LiteGraph.registerNodeType("anthropic/chat", AnthropicChat )
-// LiteGraph.registerNodeType("anthropic/vision", AnthropicPushImages)
 
 // Prompt
 LiteGraph.registerNodeType("prompt/text", PromptText )
 LiteGraph.registerNodeType("prompt/template", PromptTemplate)
 // File
 LiteGraph.registerNodeType("file/audio", AudioInput )
-// LiteGraph.registerNodeType("file/image", ImageFile )
 // Agent
 LiteGraph.registerNodeType("agent/openai", AgentOpenAI)
 LiteGraph.registerNodeType("agent/anthropic", AgentAnthropic)

@@ -124,7 +124,7 @@
             dark:text-stone-200 dark:bg-stone-900">
     <div class="w-full">
     <div class="max-w-3xl px-2.5 mx-auto inset-x-0">
-        <div class=" pb-[0.6rem]">
+        <div class=" pb-2">
             <!-- Input -->
             <input type="file" 
                 multiple 
