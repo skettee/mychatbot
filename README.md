@@ -2,8 +2,7 @@
 
 A Node Graph-Based User Interface for Large Language Models (similar to ComfyUI). You can build your own chatbot without coding.
 
-https://github.com/user-attachments/assets/4c419c0a-75d5-4d21-8383-8e63714a27f6
-
+https://github.com/user-attachments/assets/9c70968f-8fd4-4169-bf4b-8de75f8b902c
 
 ## Features
 - 🪄 **No Coding Required**: Easily create and manage workflows by simply dragging and dropping nodes, and connecting them without the need for coding skills.
