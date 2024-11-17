@@ -80,10 +80,9 @@
         <div id="chat-assistant" class="prose w-full max-w-full font-serif dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-pre:my-2 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-2 prose-em:font-sans prose-em:text-sm prose-em:text-[#b37eb5] whitespace-pre-line">
             <div>
                 <div class="w-full">
-                    {#each tokens as token, tokenIdx}
+                    {#each tokens as token}
                         {#if token.type === 'code'}
                             <CodeBlock
-                                id={`${tokenIdx}`}
                                 lang={token.lang}
                                 code={token.text}
                             />

@@ -36,7 +36,7 @@
         if (inputFiles && inputFiles.length > 0) {
             const _inputFiles = Array.from(inputFiles)
             _inputFiles.forEach((file)=>{
-                console.log(file.type)
+                // console.log(file.type)
                 if( IMAGE_TYPE.includes(file.type) && file.size < MAX_IMAGE_SIZE ) {
                     let reader = new FileReader()
                     reader.onload = (e) => {
