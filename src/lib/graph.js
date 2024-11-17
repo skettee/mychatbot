@@ -867,7 +867,7 @@ class PrintEventSlot {
             let content = undefined
             switch (typeof (param)) {
                 case 'object':
-                    content = "<pre>" + JSON.stringify(param, null, 2) + "</pre>"
+                    content = "```json\n" + JSON.stringify(param, null, 2) + "\n```"
                     break
                 case 'string':
                     content = "<pre>" + param + "</pre>"
@@ -914,7 +914,7 @@ class PrintSlot {
                 })
             }
             else if (that._object && !that._string) {
-                content = "<pre>" + JSON.stringify(that._object, null, 2) + "</pre>"
+                content = "```json\n" + JSON.stringify(that._object, null, 2) + "\n```"
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
