@@ -18,7 +18,7 @@
     const handleSubmit = async (userPrompt, userFiles) => {
         // console.log(userPrompt, userFiles)
         graph.sendEventToAllNodes("chat", {
-            prompt: userPrompt,
+            text: userPrompt,
             files: userFiles
         } );
     }

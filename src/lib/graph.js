@@ -143,8 +143,8 @@ class OpenAITranscription {
         }
         this.addInput("audio", LiteGraph.ACTION)
         this.addInput("prompt", "string")
-        // this.addOutput("text", LiteGraph.EVENT);
-        this.addOutput("text", "string")
+        this.addOutput("content", LiteGraph.EVENT);
+        // this.addOutput("text", "string")
 
         this.addWidget("combo", "language",
             "auto",
@@ -159,7 +159,7 @@ class OpenAITranscription {
         // variables
         this._trigger = false
         this._audio = null
-        this._transcription = null
+        // this._transcription = null
     }
     onAction(action, param) {
         // console.log(action, param)
@@ -184,8 +184,8 @@ class OpenAITranscription {
             this._trigger = false
             this._audio = null
         }
-        this.setOutputData(0, this._transcription)
     }
+
     fetch(formData) {
         const that = this
 
@@ -198,7 +198,7 @@ class OpenAITranscription {
                 body: formData
             }).then((response) => response.json())
                 .then((data) => {
-                    this._transcription = data.text
+                    // that._transcription = data.text
                     addChatMessage({
                         id: uuidv4(),
                         name: that.title,
@@ -208,6 +208,7 @@ class OpenAITranscription {
                         content: data.text,
                         done: true
                     })
+                    that.trigger("content", data)
                 })
         } catch (err) { console.error(err)} 
     }
@@ -431,7 +432,7 @@ class OpenAIInput {
         if( action == 'content' ) {
             let imageContent = []
             let textContent = []
-            const inputFiles = param.files
+            const inputFiles = param.files? param.files : []
             inputFiles.forEach((file) => {
                 switch(file.type) {
                     case 'image': 
@@ -451,7 +452,7 @@ class OpenAIInput {
             const message = [{
                 role: "user",
                 content: [
-                    { type: "text", text: param.prompt},
+                    { type: "text", text: param.text},
                     ...textContent,
                     ...imageContent
                 ]
@@ -691,7 +692,7 @@ class AnthropicInput {
             let imageContent = []
             let textContent = []
             let pdfContent = []
-            const inputFiles = param.files
+            const inputFiles = param.files? param.files : []
             inputFiles.forEach((file) => {
                 switch(file.type) {
                     case 'image': 
@@ -730,7 +731,7 @@ class AnthropicInput {
                     ...pdfContent,
                     ...imageContent,
                     ...textContent,
-                    { type: "text", text: param.prompt}
+                    { type: "text", text: param.text}
                 ]
             }]
             this.trigger('message', message)
@@ -762,7 +763,7 @@ class Input {
             color: "#355",
             timestamp: Date.now(),
             role: 'user',
-            content: param.prompt,
+            content: param.text,
             done: true
         })
 
