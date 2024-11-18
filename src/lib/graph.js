@@ -15,7 +15,7 @@ const addChatMessage = (chatMessage) => {
         if( founded ) {
             data = data.map((item) => {
                 if(item.id == id) {
-                    return { ...item, content: chatMessage.content }
+                    return { ...item, content: chatMessage.content, done: chatMessage.done }
                 }
                 return item
             })
@@ -205,7 +205,8 @@ class OpenAITranscription {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: data.text
+                        content: data.text,
+                        done: true
                     })
                 })
         } catch (err) { console.error(err)} 
@@ -350,6 +351,11 @@ class OpenAIChat {
                 that._id = stream.id
                 const [{ finish_reason }] = stream.choices
                 if (finish_reason === 'stop') {
+                    addChatMessage({
+                        id: that._id,
+                        content: that._text,
+                        done: true
+                    })
                     that.trigger("assistant", [{ role: 'assistant', content: that._text }])
                 }
                 if (finish_reason === 'tool_calls') {
@@ -389,7 +395,8 @@ class OpenAIChat {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
                 if (delta.tool_calls) {
@@ -588,7 +595,8 @@ class AnthropicChat {
                         color: "#535",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
                 if (that._id && stream.content_block.type === "tool_use") {
@@ -604,7 +612,8 @@ class AnthropicChat {
                     that._text = (that._text ?? '') + stream.delta.text
                     addChatMessage({
                         id: that._id,
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
                 if (stream.delta.type === "input_json_delta") {
@@ -615,6 +624,11 @@ class AnthropicChat {
             this._eventSource.addEventListener('content_block_stop', function () { })
             this._eventSource.addEventListener('message_delta', function () { })
             this._eventSource.addEventListener('message_stop', function () {
+                addChatMessage({
+                    id: that._id,
+                    content: that._text,
+                    done: true
+                })
                 let content = [{ type: 'text', 'text': that._text }]
                 if (that._toolUse.id) {
                     content = [...content,
@@ -748,7 +762,8 @@ class Input {
             color: "#355",
             timestamp: Date.now(),
             role: 'user',
-            content: param.prompt
+            content: param.prompt,
+            done: true
         })
 
         this.trigger('content', param)
@@ -885,7 +900,8 @@ class PrintEventSlot {
                 color: "#533",
                 timestamp: Date.now(),
                 role: 'assistant',
-                content: content
+                content: content,
+                done: true
             })
         }
     }
@@ -910,7 +926,8 @@ class PrintSlot {
                     color: "#533",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: content
+                    content: content,
+                    done: true
                 })
             }
             else if (that._object && !that._string) {
@@ -921,7 +938,8 @@ class PrintSlot {
                     color: "#533",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: content
+                    content: content,
+                    done: true
                 })
             }
         })
@@ -1079,6 +1097,11 @@ class AgentOpenAI {
                 that._id = stream.id
                 const [{ finish_reason }] = stream.choices
                 if (finish_reason === 'stop') {
+                    addChatMessage({
+                        id: that._id,
+                        content: that._text,
+                        done: true
+                    })
                     const agentResult = {
                         id: that._call.id,
                         content: (that._text) ? that._text : ''
@@ -1094,7 +1117,8 @@ class AgentOpenAI {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
             })
@@ -1253,7 +1277,8 @@ class AgentAnthropic {
                         color: "#535",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
             })
@@ -1263,12 +1288,18 @@ class AgentAnthropic {
                 that._text = (that._text ?? '') + stream.delta.text
                 addChatMessage({
                     id: that._id,
-                    content: that._text
+                    content: that._text,
+                    done: false
                 })
             })
             this._eventSource.addEventListener('content_block_stop', function () { })
             this._eventSource.addEventListener('message_delta', function () { })
             this._eventSource.addEventListener('message_stop', function () {
+                addChatMessage({
+                    id: that._id,
+                    content: that._text,
+                    done: true
+                })
                 const agentResult = {
                     id: that._call.id,
                     content: (that._text) ? that._text : ''
@@ -1422,6 +1453,11 @@ class AgentPerplexity {
                 that._id = stream.id
                 const [{ finish_reason }] = stream.choices
                 if (finish_reason === 'stop') {
+                    addChatMessage({
+                        id: that._id,
+                        content: that._text,
+                        done: true
+                    })
                     const agentResult = {
                         id: that._call.id,
                         content: (that._text) ? that._text : ''
@@ -1437,7 +1473,8 @@ class AgentPerplexity {
                         color: "#653",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: that._text
+                        content: that._text,
+                        done: false
                     })
                 }
             })

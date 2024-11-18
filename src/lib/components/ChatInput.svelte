@@ -121,7 +121,7 @@
 
 <div class="fixed bottom-0 left-0 right-0 z-15 
             text-stone-900 bg-stone-200 
-            dark:text-stone-200 dark:bg-stone-900">
+            dark:text-stone-200 dark:bg-[#212121]">
     <div class="w-full">
     <div class="max-w-3xl px-2.5 mx-auto inset-x-0">
         <div class=" pb-2">
@@ -136,7 +136,7 @@
             <!-- Form -->
             <form class="flex flex-col relative w-full rounded-xl px-1.5 
                          text-stone-900 bg-stone-300 
-                         dark:bg-stone-800 dark:text-stone-200"
+                         dark:bg-[#2f2f2f] dark:text-stone-200"
                     on:submit|preventDefault={() => {
                         handleSubmit(prompt, files);
                         prompt = ''
@@ -194,7 +194,7 @@
                                 <button 
                                     id="upload-files"
                                     class="text-stone-900 bg-stone-300 hover:bg-stone-400 
-                                           dark:text-stone-300 dark:bg-stone-800 dark:hover:bg-stone-700 
+                                           dark:text-stone-300 dark:bg-[#2f2f2f] dark:hover:bg-[#212121] 
                                            transition rounded-xl p-1.5 self-center"
                                     type="button"
                                     on:click={() => {filesInputElement.click()}}>
@@ -209,7 +209,7 @@
                             id="chat-textarea"
                             bind:this={chatTextAreaElement}
                             class="bg-stone-300 text-stone-900
-                                   dark:bg-stone-800 dark:text-stone-200 
+                                   dark:bg-[#2f2f2f] dark:text-stone-200 
                                    placeholder-stone-400 dark:placeholder-stone-700
                                    scrollbar outline-none w-full py-3 px-3 pl-4 rounded-xl resize-none h-12 "
                             placeholder='Say something...'
@@ -247,8 +247,8 @@
                                 <button id="send-message-button" 
                                         type="submit"
                                         class="{(prompt !== '' || files.length > 0)
-                                                    ? 'text-stone-300 bg-stone-900 hover:bg-stone-600 dark:text-stone-800 dark:bg-stone-300 dark:hover:bg-stone-500'
-                                                    : 'text-stone-300 bg-stone-400 dark:text-gray-900 dark:bg-stone-700 disabled'} transition rounded-xl p-1.5 self-center"
+                                                    ? 'text-stone-300 bg-stone-900 hover:bg-stone-600 dark:text-[#2f2f2f] dark:bg-stone-300 dark:hover:bg-stone-500'
+                                                    : 'text-stone-300 bg-stone-400 dark:text-[#2f2f2f] dark:bg-stone-600 disabled'} transition rounded-xl p-1.5 self-center"
                                         disabled={prompt === '' && files.length == 0}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" />

@@ -62,7 +62,7 @@
         <Pane size={50}>
             <div class="h-full flex flex-col flex-auto pb-20
                         text-stone-900 bg-stone-200 
-                        dark:text-stone-200 dark:bg-stone-900">
+                        dark:text-stone-200 dark:bg-[#212121]">
                 <div id="messages-container"
                     bind:this={messagesContainerElement}
                     class="flex flex-col justify-between w-full flex-auto overflow-auto scrollbar h-0 max-w-full">

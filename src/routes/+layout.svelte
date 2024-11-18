@@ -8,8 +8,8 @@
 
 <div class="app relative">
     <div class="text-stone-900 bg-stone-200 
-                dark:text-stone-200 dark:bg-stone-900 
+                dark:text-stone-200 dark:bg-[#212121] 
                 min-h-screen overflow-auto scrollbar flex flex-row">
-        <slot />
+        <slot/>
     </div>
 </div>
