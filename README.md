@@ -67,9 +67,9 @@ npm run build
 
 ```bash
 
-node -r dotenv/config build
+ORIGIN=http://localhost:3000 BODY_SIZE_LIMIT=Infinity node -r dotenv/config build
 
 # If you use Node.js v20.6+, you can use the `--env-file`
-node --env-file=.env build
+ORIGIN=http://localhost:3000 BODY_SIZE_LIMIT=Infinity node --env-file=.env build
 
 ```
