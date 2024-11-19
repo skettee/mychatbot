@@ -3,7 +3,7 @@
     import auto_render from 'katex/dist/contrib/auto-render.min.js';
     import 'katex/dist/katex.min.css';
     import CodeBlock from './CodeBlock.svelte';
-    import { onMount } from 'svelte';
+    import { tick } from 'svelte';
     import { browser } from '$app/environment'
 
     import dayjs from 'dayjs'
@@ -20,13 +20,13 @@
                 // customised options
                 // • auto-render specific keys, e.g.:
                 delimiters: [
-                    { left: '$$', right: '$$', display: false },
+                    { left: '$$', right: '$$', display: true },
                     { left: '$ ', right: ' $', display: false },
-                    { left: '\\(', right: '\\)', display: false },
-                    { left: '\\[', right: '\\]', display: false },
-                    { left: '[ ', right: ' ]', display: false }
+                    { left: '\[', right: ' \]', display: true },
+                    { left: '\(', right: '\)', display: false }
                 ],
                 // • rendering keys, e.g.:
+                output: 'html',
                 throwOnError: false
             });
         }
@@ -44,17 +44,19 @@
         '#000': 'bg-[#222]'         // black
     }
 
-    onMount(()=>{
-        messageElement = document.getElementById('chat-assistant');
-        // console.log(messageElement)
-        renderLatex()
-    })
+    // onMount(()=>{
+    //     messageElement = document.getElementById('chat-assistant');
+    //     // console.log(messageElement)
+    //     // renderLatex()
+    // })
 
     let tokens = []
     let renderer = undefined
 
     $: if(message) {
-        tokens = marked.lexer(message.content);
+        // Workaround for openai math equations
+        const msg = message.content.replaceAll('\\[\n', '\\[ ').replaceAll('\n\\]', ' \\]')
+        tokens = marked.lexer(msg);
         // console.log(tokens)
 
         renderer = new marked.Renderer();
@@ -62,6 +64,8 @@
             // console.log(token.text)
             return `<code>${token.text.replaceAll('&amp;', '&')}</code>`;
         };
+
+        tick().then(()=>renderLatex())
     }
 
     const handleCopy = (content) => {
@@ -72,9 +76,9 @@
 
     const handleDownlaod = (content) => {
         if ( browser ) {
-            const name = 'myChatbot ' + dayjs(Date.now()).format('YYYY-MM-DD HHmmss') + '.md'
+            const name = 'myChatbot ' + dayjs(Date.now()).format('YYYY-MM-DD HHmmss') + '.txt'
             // console.log(name)
-            const blob = new Blob([content], {type:'text/markdown'})
+            const blob = new Blob([content], {type:'text/plain'})
             const url = URL.createObjectURL(blob)
 
             const a = document.createElement('a')
@@ -104,7 +108,7 @@
             {message.name}
             <span class="invisible group-hover:visible text-gray-400 text-xs font-medium">{timestamp}</span>
         </div>
-        <div id="chat-assistant" class="prose w-full max-w-full font-serif dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-2 prose-em:font-sans prose-em:text-sm prose-em:text-[#b37eb5] whitespace-pre-line">
+        <div id="chat-assistant" bind:this={messageElement} class="prose w-full max-w-full font-serif dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-2 prose-em:font-sans prose-em:text-sm prose-em:text-[#b37eb5] whitespace-pre-line">
             <div>
                 <div class="w-full">
                     {#each tokens as token, tokenIdx}
@@ -117,8 +121,6 @@
                         {:else}
                             {@html marked.parse(token.raw, {
                                 ...marked.getDefaults(),
-                                gfm: true,
-                                breaks: true,
                                 renderer
                             })}
                         {/if}

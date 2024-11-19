@@ -55,12 +55,12 @@
 <div class="min-h-screen max-h-screen w-full max-w-full flex flex-col">
     <!-- TODO: Nav -->
     <Splitpanes horizontal >
-        <Pane size={50} maxSize={72}>
+        <Pane size={50} maxSize={70}>
             <!-- LiteGraph -->
              <ChatEditor/>
         </Pane>
-        <Pane size={50}>
-            <div class="h-full flex flex-col flex-auto pb-20
+        <Pane>
+            <div class="h-full flex flex-col flex-auto pb-24
                         text-stone-900 bg-stone-200 
                         dark:text-stone-200 dark:bg-[#212121]">
                 <div id="messages-container"
