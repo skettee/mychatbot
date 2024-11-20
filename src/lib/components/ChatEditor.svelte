@@ -10,8 +10,6 @@
         var canvas = new LGraphCanvas(node, graph);
         canvas.allow_searchbox = false;
     }
-
-    // const width = window.screen.width
 </script>
 
 <main class="editor-area">

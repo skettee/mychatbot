@@ -42,6 +42,7 @@ npm install
 OPENAI_API_KEY=your-openai-api-key
 ANTHROPIC_API_KEY=your-anthropic-api-key
 PERPLEXITY_API_KEY==your-perplexity-api-key
+
 ```
 
 - Start a development server
@@ -67,9 +68,9 @@ npm run build
 
 ```bash
 
-ORIGIN=http://localhost:3000 BODY_SIZE_LIMIT=Infinity node -r dotenv/config build
+node -r dotenv/config build
 
 # If you use Node.js v20.6+, you can use the `--env-file`
-ORIGIN=http://localhost:3000 BODY_SIZE_LIMIT=Infinity node --env-file=.env build
+node --env-file=.env build
 
 ```
