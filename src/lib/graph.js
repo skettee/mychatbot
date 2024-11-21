@@ -964,10 +964,9 @@ class AgentOpenAI {
     constructor() {
         // Properties
         this.properties = {
-            name: "transfer_to_writing",
-            desc: "Transfer to Writing Agent for writing report, code, novel etc.",
-            model: "gpt-4o",
-            temperature: 1.0
+            name: "transfer_to_reasoning",
+            desc: "Transfer to Reasoning Agent for coding, math, and science tasks",
+            model: "o1-mini",
         }
 
         this._inputTools = undefined
@@ -978,16 +977,12 @@ class AgentOpenAI {
         this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
         this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
         this.addWidget("combo", "model",
-            "gpt-4o",
-            { values: ["gpt-4o", "gpt-4o-mini"], property: "model" }
+            "o1-mini",
+            { values: ["o1-mini", "o1-preview"], property: "model" }
         )
-        this.addWidget("number", "temperature",
-            1.0,
-            { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
-        )
+        
         // Inputs
         this.addInput("info(chain)", "object")
-        this.addInput("instruction", "string")
         this.addInput("agent_call", LiteGraph.ACTION)
 
         // Outputs
@@ -1041,7 +1036,6 @@ class AgentOpenAI {
         }]
 
         let INPUT_TOOLS = this.getInputData(0)
-        let SYSTEM = this.getInputData(1)
 
         if (INPUT_TOOLS) {
             let parsed = INPUT_TOOLS
@@ -1052,13 +1046,9 @@ class AgentOpenAI {
         }
 
         if (this._trigger) {
-            if (SYSTEM) {
-                this._messages = [{ role: 'system', content: SYSTEM }, ...this._messages]
-            }
             // Build Body
             let body = {
                 model: this.properties.model,
-                temperature: this.properties.temperature,
                 messages: this._messages,
                 stream: true
             }
@@ -1136,8 +1126,8 @@ class AgentAnthropic {
     constructor() {
         // Properties
         this.properties = {
-            name: "transfer_to_writing",
-            desc: "Transfer to Writing Agent for writing report, code, novel etc.",
+            name: "transfer_to_critique",
+            desc: "Transfer to Critique Agent to give an opinion or judgment about the writings or ideas.",
             model: "claude-3-5-sonnet-20241022",
             temperature: 1.0,
             maxTokens: 8192

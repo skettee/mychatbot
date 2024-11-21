@@ -40,8 +40,8 @@
     }
 
     const handleDownlaod = (lang, code) => {
-        const mediaType = LANGINFO[lang].type ? LANGINFO[lang].type : "text/plain"
-        const ext = LANGINFO[lang].ext ? LANGINFO[lang].ext : "txt"
+        const mediaType = LANGINFO[lang] ? LANGINFO[lang].type : "text/plain"
+        const ext = LANGINFO[lang] ? LANGINFO[lang].ext : "txt"
         if ( browser ) {
             const name = 'mychatbot_' + dayjs(Date.now()).format('YYYY-MM-DD-HHmmss') + '.' + ext
             const blob = new Blob([code], {type: mediaType})

@@ -55,7 +55,7 @@
 
     $: if(message) {
         // Workaround for openai math equations
-        const msg = message.content.replaceAll('\\[\n', '\\[ ').replaceAll('\n\\]', ' \\]')
+        const msg = message.content.replaceAll(/[\\][\[]\s*\n/g, '\[ ').replaceAll(/\n\s*[\\][\]]/g, ' \]')
         tokens = marked.lexer(msg);
         // console.log(tokens)
 
@@ -114,7 +114,7 @@
                     {#each tokens as token, tokenIdx}
                         {#if token.type === 'code'}
                             <CodeBlock
-                                lang={token.lang}
+                                lang={token.lang? token.lang : 'shell'}
                                 code={token.text}
                                 done={message.done}
                             />
