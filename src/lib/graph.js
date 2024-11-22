@@ -35,28 +35,38 @@ const mapOpenAIMessages = (messages) => {
             return
         }
         if( item.role == 'tool') return { role: 'user', content: item.content }
+        // object type
         if (typeof (item.content) == 'object') {
             const textContentList = item.content.filter((item) => ('text' in item))
-            const textContent = textContentList.reduce((start, next) => {
-                return { type: 'text', text: start.text + '\n---\n' + next.text}
-            })
-            if(textContent) return { role: item.role, content: textContent.text }
+            if(textContentList.length > 0) {
+                const textContent = textContentList.reduce((start, next) => {
+                    return { type: 'text', text: start.text + '\n---\n' + next.text}
+                })
+                if(textContent) return { role: item.role, content: textContent.text }
+            }
             return
         }
+        // string type
         return { role: item.role, content: item.content }
     }).filter((item)=>item)
 }
 
 const mapAnthropicMessages = (messages) => {
     return messages.map((item)=>{
+        // object type
         if (typeof (item.content) == 'object') {
             const textContentList = item.content.filter((item) => ('text' in item))
-            const textContent = textContentList.reduce((start, next) => {
-                return { type: 'text', text: start.text + '\n---\n' + next.text}
-            })
-            if(textContent) return { role: item.role, content: textContent.text }
-            return
+            if(textContentList.length > 0) {
+                const textContent = textContentList.reduce((start, next) => {
+                    return { type: 'text', text: start.text + '\n---\n' + next.text}
+                })
+                if(textContent) return { role: item.role, content: textContent.text }
+            }
+            const toolResultContent = item.content.find((item) => ('tool_use_id' in item))
+            if(toolResultContent) return { role: 'user', content: toolResultContent.content }
+            return           
         }
+        // string type
         const toolResultContent = item.content.find((item) => ('tool_use_id' in item))
         if(toolResultContent) return { role: 'user', content: toolResultContent.content }
         return { role: item.role, content: item.content }
@@ -676,6 +686,9 @@ class AnthropicChat {
 // Anthropic Message Builder
 class AnthropicInput {
     constructor() {
+        this.properties = {
+            cache: false
+        }
         // Input
         this.addInput("content", LiteGraph.ACTION)
         this.addInput("agent_result", LiteGraph.ACTION)
@@ -708,8 +721,8 @@ class AnthropicInput {
                     case 'text':
                         textContent = [...textContent, {
                             type: "text",
-                            text: file.src,
-                            cache_control: { type: "ephemeral" }
+                            text: file.src
+                            // cache_control: { type: "ephemeral" }
                         }]
                         break
                     case 'pdf':
@@ -719,8 +732,8 @@ class AnthropicInput {
                                 type: "base64",
                                 media_type: file.media_type,
                                 data: file.src.replace('data:', '').replace(/^.+,/, '')
-                            },
-                            cache_control: { type: "ephemeral" }
+                            }
+                            // cache_control: { type: "ephemeral" }
                         }]
                         break
                 }
@@ -965,8 +978,9 @@ class AgentOpenAI {
         // Properties
         this.properties = {
             name: "transfer_to_reasoning",
-            desc: "Transfer to Reasoning Agent for coding, math, and science tasks",
+            desc: "Transfer to Reasoning Agent for coding, math, and science tasks.",
             model: "o1-mini",
+            temperature: 1.0
         }
 
         this._inputTools = undefined
@@ -978,11 +992,16 @@ class AgentOpenAI {
         this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
         this.addWidget("combo", "model",
             "o1-mini",
-            { values: ["o1-mini", "o1-preview"], property: "model" }
+            { values: ["gpt-4o", "gpt-4o-mini", "o1-preview", "o1-mini"], property: "model" }
+        )
+        this.addWidget("number", "temperature",
+            1.0,
+            { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
         )
         
         // Inputs
         this.addInput("info(chain)", "object")
+        this.addInput("instruction", "string")
         this.addInput("agent_call", LiteGraph.ACTION)
 
         // Outputs
@@ -1036,6 +1055,7 @@ class AgentOpenAI {
         }]
 
         let INPUT_TOOLS = this.getInputData(0)
+        let SYSTEM = this.getInputData(1)
 
         if (INPUT_TOOLS) {
             let parsed = INPUT_TOOLS
@@ -1046,9 +1066,13 @@ class AgentOpenAI {
         }
 
         if (this._trigger) {
+            if (SYSTEM) {
+                this._messages = [{ role: 'system', content: SYSTEM }, ...this._messages]
+            }
             // Build Body
             let body = {
                 model: this.properties.model,
+                temperature: this.properties.temperature,
                 messages: this._messages,
                 stream: true
             }
@@ -1126,8 +1150,8 @@ class AgentAnthropic {
     constructor() {
         // Properties
         this.properties = {
-            name: "transfer_to_critique",
-            desc: "Transfer to Critique Agent to give an opinion or judgment about the writings or ideas.",
+            name: "transfer_to_writing",
+            desc: "Transfer to Writing Agent for writing report, paper, essay, novel and poetry.",
             model: "claude-3-5-sonnet-20241022",
             temperature: 1.0,
             maxTokens: 8192
@@ -1311,7 +1335,7 @@ class AgentPerplexity {
         // Properties
         this.properties = {
             name: "transfer_to_research",
-            desc: "Transfer to Research Agent for deep research using web search",
+            desc: "Transfer to Research Agent for deep research using web search.",
             model: "llama-3.1-sonar-large-128k-online",
             temperature: 0.2
         }
