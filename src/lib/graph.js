@@ -351,6 +351,16 @@ class OpenAIChat {
 
             this._eventSource.addEventListener('error', function (err) {
                 console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
                 that._isOk = false
             })
 
@@ -590,6 +600,17 @@ class AnthropicChat {
 
             this._eventSource.addEventListener('error', function (err) {
                 console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
+                this._toolUse = { id: null, name: null, input: null }
                 that._isOk = false
             })
 
@@ -978,7 +999,7 @@ class AgentOpenAI {
         // Properties
         this.properties = {
             name: "transfer_to_reasoning",
-            desc: "Transfer to Reasoning Agent for coding, math, and science tasks.",
+            desc: "Transfer to Reasoning Agent for math, and science tasks.",
             model: "o1-mini",
             temperature: 1.0
         }
@@ -1101,6 +1122,16 @@ class AgentOpenAI {
 
             this._eventSource.addEventListener('error', function (err) {
                 console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
                 that._isOk = false
             })
 
@@ -1151,7 +1182,7 @@ class AgentAnthropic {
         // Properties
         this.properties = {
             name: "transfer_to_writing",
-            desc: "Transfer to Writing Agent for writing report, paper, essay, novel and poetry.",
+            desc: "Transfer to Writing Agent for writing report, paper, essay, novel, poetry and code.",
             model: "claude-3-5-sonnet-20241022",
             temperature: 1.0,
             maxTokens: 8192
@@ -1276,6 +1307,16 @@ class AgentAnthropic {
 
             this._eventSource.addEventListener('error', function (err) {
                 console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
                 that._isOk = false
             })
 
@@ -1460,6 +1501,16 @@ class AgentPerplexity {
 
             this._eventSource.addEventListener('error', function (err) {
                 console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
                 that._isOk = false
             })
 
