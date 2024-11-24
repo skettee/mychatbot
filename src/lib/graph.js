@@ -993,6 +993,147 @@ class PrintSlot {
 // Agents
 //
 
+// DALL-E Agent
+class AgentDallE {
+    constructor() {
+        // Properties
+        this.properties = {
+            name: "transfer_to_generate_image",
+            desc: "Transfer to Generate Image Agent to generate image.",
+            model: "dall-e-3",
+            n: 1,
+            quality: 'standard',
+            response_format: 'url',
+            size: "1792x1024",
+            style: "vivid"
+        }
+
+        this._inputTools = undefined
+        this._prompt = undefined
+        this._call = undefined
+
+        // Widgets
+        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+        this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
+        this.addWidget("combo", "quality",
+            "standard",
+            { values: ["standard", "hd"], property: "quality" }
+        )
+        this.addWidget("combo", "size",
+            "1792x1024",
+            { values: ["1024x1024", "1792x1024", "1024x1792"], property: "size" }
+        )
+        this.addWidget("combo", "style",
+            "vivid",
+            { values: ["vivid", "natural"], property: "vivid" }
+        )
+
+        // Inputs
+        this.addInput("info(chain)", "object")
+        this.addInput("agent_call", LiteGraph.ACTION)
+
+        // Outputs
+        this.addOutput("info(chain)", "object")
+        this.addOutput("agent_result", LiteGraph.EVENT)
+
+        this.title = "Agent (DALL-E)"
+        this.color = "#223"
+        this.bgcolor = "#335"
+
+        // Flags
+        this._isOk = true
+        this._trigger = false
+    }
+    onAction(action, param) {
+        if (action == 'agent_call') {
+            // check agent name
+            let calls = param.calls
+            this._call = calls.find((item) => item.name == this.properties.name)
+            if (this._call) {
+                this._prompt = this._call.arguments.query
+                this._trigger = true
+            }
+        }
+    }
+    onExecute() {
+        // Build tool
+        let TOOL = [{
+            "agent": {
+                "name": this.properties.name,
+                "description": this.properties.desc,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query that is specific and descriptive."
+                        }
+                    }
+                }
+            }
+        }]
+
+        let INPUT_TOOLS = this.getInputData(0)
+
+        if (INPUT_TOOLS) {
+            let parsed = INPUT_TOOLS
+            this.setOutputData(0, [...parsed, ...TOOL])
+        }
+        else {
+            this.setOutputData(0, TOOL)
+        }
+
+        if (this._trigger) {
+            // Build Body
+            let body = {
+                model: this.properties.model,
+                prompt: this._prompt,
+                n: this.properties.n,
+                quality: this.properties.quality,
+                response_format: this.properties.response_format,
+                size: this.properties.size,
+                style: this.properties.style
+            }
+            // console.log('AgentDallE', body)
+
+            // fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        const that = this
+        try {
+            fetch('/api/openai/dalle/generation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            }).then((response) => response.json())
+                .then((image) => {
+                    addChatMessage({
+                        id: uuidv4(),
+                        name: that.title,
+                        color: "#335",
+                        timestamp: Date.now(),
+                        role: 'assistant',
+                        content: `<img src="${image.data[0].url}" title="${image.data[0].revised_prompt}" alt="${image.data[0].revised_prompt}">`,
+                        done: true
+                    })
+                    // build image
+                    // const contentText = `<img src="${image.data[0].url}" title="${image.data[0].revised_prompt}">`
+                    const contentText = `${image.data[0].revised_prompt}`
+                    const agentResult = {
+                        id: that._call.id,
+                        content: contentText
+                    }
+                    that.trigger("agent_result", agentResult)
+                })
+        } catch (err) { console.error(err)} 
+    }
+}
+
 // OpenAI Agent
 class AgentOpenAI {
     constructor() {
@@ -1577,3 +1718,6 @@ LiteGraph.registerNodeType("agent/perplexity", AgentPerplexity)
 // Debug
 LiteGraph.registerNodeType("print/event", PrintEventSlot)
 LiteGraph.registerNodeType("print/slot", PrintSlot)
+// --- v0.0.1 --- //
+LiteGraph.registerNodeType("agent/dall-e", AgentDallE)
+
