@@ -993,6 +993,138 @@ class PrintSlot {
 // Agents
 //
 
+// Speech Agent
+class AgentSpeech {
+    constructor() {
+        // Properties
+        this.properties = {
+            name: "transfer_to_speech",
+            desc: "Transfer to Speech Agent to generate speech.",
+            model: "tts-1",
+            voice: "alloy",
+            response_format: "mp3",
+            speed: 1.0
+        }
+        this._inputTools = undefined
+        this._input = undefined
+        this._call = undefined
+
+        // Widgets
+        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+        this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
+        this.addWidget("combo", "voice",
+            "alloy",
+            { values: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"], property: "voice" }
+        )
+
+        // Inputs
+        this.addInput("info(chain)", "object")
+        this.addInput("agent_call", LiteGraph.ACTION)
+
+        // Outputs
+        this.addOutput("info(chain)", "object")
+        this.addOutput("agent_result", LiteGraph.EVENT)
+
+        this.title = "Agent (SPEECH)"
+        this.color = "#223"
+        this.bgcolor = "#335"
+
+        // Flags
+        this._isOk = true
+        this._trigger = false
+    }
+    onAction(action, param) {
+        if (action == 'agent_call') {
+            // check agent name
+            let calls = param.calls
+            this._call = calls.find((item) => item.name == this.properties.name)
+            if (this._call) {
+                this._input = this._call.arguments.query
+                this._trigger = true
+            }
+        }
+    }
+    onExecute() {
+        // Build tool
+        let TOOL = [{
+            "agent": {
+                "name": this.properties.name,
+                "description": this.properties.desc,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query that is specific and descriptive."
+                        }
+                    }
+                }
+            }
+        }]
+
+        let INPUT_TOOLS = this.getInputData(0)
+
+        if (INPUT_TOOLS) {
+            let parsed = INPUT_TOOLS
+            this.setOutputData(0, [...parsed, ...TOOL])
+        }
+        else {
+            this.setOutputData(0, TOOL)
+        }
+
+        if (this._trigger) {
+            // Build Body
+            let body = {
+                model: this.properties.model,
+                input: this._input,
+                voice: this.properties.voice,
+                response_format: this.properties.response_format,
+                speed: this.properties.speed
+            }
+            // console.log('AgentSpeech', body)
+
+            // fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        const that = this
+
+        try {
+            fetch('/api/openai/audio/speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            }).then((response) => response.blob())
+                .then((file) => {
+                    // console.log(file)
+                    let reader = new FileReader()
+                    reader.onload = (e) => {
+                        addChatMessage({
+                            id: uuidv4(),
+                            name: that.title,
+                            color: "#335",
+                            timestamp: Date.now(),
+                            role: 'assistant',
+                            content: `<audio src="${e.target.result}" type="${file.type}" autoplay controls style="margin: 1rem 0;"></audio><p>${that._input}</p>`,
+                            done: false
+                        })
+                    }
+                    reader.readAsDataURL(file)
+                    
+                    const agentResult = {
+                        id: that._call.id,
+                        content: 'Speech generated.'
+                    }
+                    that.trigger("agent_result", agentResult)
+                })
+        } catch (err) { console.error(err)} 
+    }
+}
+
 // DALL-E Agent
 class AgentDallE {
     constructor() {
@@ -1118,8 +1250,8 @@ class AgentDallE {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}"><i>${image.data[0].revised_prompt}</i>`,
-                        done: true
+                        content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}" style="margin: 1rem 0;"><i>${image.data[0].revised_prompt}</i>`,
+                        done: false
                     })
                     // build image
                     // const contentText = `<img src="${image.data[0].url}" title="${image.data[0].revised_prompt}">`
@@ -1720,4 +1852,4 @@ LiteGraph.registerNodeType("print/event", PrintEventSlot)
 LiteGraph.registerNodeType("print/slot", PrintSlot)
 // --- v0.0.1 --- //
 LiteGraph.registerNodeType("agent/dall-e", AgentDallE)
-
+LiteGraph.registerNodeType("agent/speech", AgentSpeech)
