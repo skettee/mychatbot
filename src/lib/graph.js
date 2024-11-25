@@ -1118,7 +1118,7 @@ class AgentDallE {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: `<img src="${image.data[0].url}" title="${image.data[0].revised_prompt}" alt="${image.data[0].revised_prompt}">`,
+                        content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}"><i>${image.data[0].revised_prompt}</i>`,
                         done: true
                     })
                     // build image
