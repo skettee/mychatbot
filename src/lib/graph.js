@@ -1025,7 +1025,7 @@ class AgentSpeech {
         this.addOutput("info(chain)", "object")
         this.addOutput("agent_result", LiteGraph.EVENT)
 
-        this.title = "Agent (SPEECH)"
+        this.title = "Agent (Speech)"
         this.color = "#223"
         this.bgcolor = "#335"
 
@@ -1109,7 +1109,7 @@ class AgentSpeech {
                             color: "#335",
                             timestamp: Date.now(),
                             role: 'assistant',
-                            content: `<audio src="${e.target.result}" type="${file.type}" autoplay controls style="margin: 1rem 0;"></audio><p>${that._input}</p>`,
+                            content: `<audio src="${e.target.result}" type="${file.type}" autoplay controls style="margin: 1rem 0;"></audio>\n${that._input}\n`,
                             done: false
                         })
                     }
@@ -1250,7 +1250,8 @@ class AgentDallE {
                         color: "#335",
                         timestamp: Date.now(),
                         role: 'assistant',
-                        content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}" style="margin: 1rem 0;"><i>${image.data[0].revised_prompt}</i>`,
+                        // content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}" style="margin: 1rem 0;"><i>${image.data[0].revised_prompt}</i>`,
+                        content: `\n![Image](${image.data[0].url})\n*${image.data[0].revised_prompt}*\n`,
                         done: false
                     })
                     // build image
