@@ -108,7 +108,7 @@
             {message.name}
             <span class="invisible group-hover:visible text-gray-400 text-xs font-medium">{timestamp}</span>
         </div>
-        <div id="chat-assistant" bind:this={messageElement} class="prose w-full max-w-full font-serif dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-2 prose-em:font-sans prose-em:text-sm prose-em:text-[#b37eb5] whitespace-pre-line">
+        <div id="chat-assistant" bind:this={messageElement} class="prose w-full max-w-full font-serif dark:prose-invert prose-headings:my-0 prose-p:m-0 prose-table:my-0 prose-blockquote:my-0 prose-img:my-0 prose-ul:-my-4 prose-ol:-my-4 prose-li:-my-2 prose-em:font-sans prose-em:text-sm whitespace-pre-line">
             <div>
                 <div class="w-full">
                     {#each tokens as token, tokenIdx}
