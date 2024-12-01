@@ -11,6 +11,7 @@
                     'text/css', 'text/csv', 'text/html', 'text/javascript',
                     'text/plain', 'text/markdown', 'application/json', 'application/xml',
                     'application/x-perl', 'application/yaml']
+    const AUDIO_TYPE = ['audio/mpeg', 'audio/mp3', 'audio/wav']
 
     let prompt = ''
     let chatTextAreaElement
@@ -63,6 +64,19 @@
                     }
                     reader.readAsDataURL(file)
                 }
+                else if(AUDIO_TYPE.includes(file.type)) {
+                    let reader = new FileReader()
+                    reader.onload = (e) => {
+                        files = [...files, {
+                            type: 'audio',
+                            subtype: getSubtype(file.type, file.name),
+                            media_type: file.type,
+                            name: file.name,
+                            src: e.target.result
+                        }]
+                    }
+                    reader.readAsDataURL(file)
+                }
                 else if(TEXT_TYPE.includes(file.type)) {
                     let reader = new FileReader()
                     reader.onload = (e) => {
@@ -75,7 +89,6 @@
                         }]
                     }
                     reader.readAsText(file)
-
                 }
             })
             inputFiles = null
@@ -103,7 +116,10 @@
             'application/xml': 'xml',
             'application/x-perl': 'perl',
             'application/yaml': 'yaml',
-            'application/pdf': 'pdf'
+            'application/pdf': 'pdf',
+            'audio/mpeg': 'mp3',
+            'audio/mp3': 'mp3',
+            'audio/wav': 'wav'
         }
 
         if(type === 'text/x-c') {
@@ -130,7 +146,7 @@
                 multiple 
                 bind:this={filesInputElement} 
                 bind:files={inputFiles} 
-                accept=".gif, .jpg, .jpeg, .png, .webp, .pdf, .py, .f, .f77, .f90, .for, .c, .cc, .cpp, .cxx, .dic, .h, .hh, .asm, .s, .java, .inc, .p, .pas, .pp, .css, .csv, .htm, .html, .js, .conf, .def, .diff, .in, .ksh, .list, .log, .pl, .text, .txt, .markdn, .markdown, .md, .mdown, .json, .xml, .pl, .yaml, .yml" 
+                accept=".gif, .jpg, .jpeg, .png, .webp, .pdf, .py, .f, .f77, .f90, .for, .c, .cc, .cpp, .cxx, .dic, .h, .hh, .asm, .s, .java, .inc, .p, .pas, .pp, .css, .csv, .htm, .html, .js, .conf, .def, .diff, .in, .ksh, .list, .log, .pl, .text, .txt, .markdn, .markdown, .md, .mdown, .json, .xml, .pl, .yaml, .yml, .mp3, .wav" 
                 style="display:none"
                 on:change={handleChange}>
             <!-- Form -->
