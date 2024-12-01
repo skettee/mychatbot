@@ -73,6 +73,70 @@ const mapAnthropicMessages = (messages) => {
     }).filter((item)=>item)
 }
 
+const mapGeminiMessages = (contents) => {
+    return contents.map((item) => {
+        const textContentList = item.parts.filter((item) => ('text' in item))
+        if(textContentList.length > 0) {
+            const textPart = textContentList.reduce((start, next) => {
+                return { text: start.text + '\n---\n' + next.text }
+            })
+            if(textPart) return { role: item.role === 'user'? item.role : 'assistant', content: textPart.text }
+        }
+        const functionCallPart = item.parts.find((item) => ('functionCall' in item))
+        if(functionCallPart) return { role: 'assistant', content: functionCallPart.functionCall.args.query }
+        const functionResponsePart = item.parts.find((item) => ('functionResponse' in item))
+        if(functionResponsePart) return { role: 'user', content: functionResponsePart.functionResponse.response.result }
+
+        return
+    }).filter((item)=>item)
+}
+
+const mapToGeminiMessages = (messages) => {
+    return messages.map((item)=>{
+        return { role: item.role === 'user'? item.role : 'model', parts: [{ text: item.content }] }
+    })
+}
+
+const addCitationsToText = (candidate, inputText) => {
+    const groundingSupports = candidate.groundingMetadata.groundingSupports;
+    const groundingChunks = candidate.groundingMetadata.groundingChunks;
+
+    if(!groundingSupports || !groundingChunks) return inputText
+
+    const citations = groundingChunks.map((chunk, index) => `[${index + 1}]`);
+
+    let indexOfFirst = 0
+    let updatedText = inputText
+    let sources = ''
+
+    groundingSupports.forEach((support) => {
+        const text = support.segment.text;
+        const indices = support.groundingChunkIndices;
+        const citationText = indices.map(index => citations[index]).join('');
+        const segmentWithCitation = `${text}${citationText}`;
+
+        let index = updatedText.indexOf(text, indexOfFirst);
+        if( index != -1 ) {
+            updatedText = updatedText.substring(0, index)
+                            + segmentWithCitation
+                            + updatedText.substring(index + text.length);
+            indexOfFirst = index;
+        }
+    })
+
+    // add sources
+    candidate.groundingMetadata.groundingChunks.forEach((chunk, chunkIndex) => {
+        const { web } = chunk;
+        const { uri, title } = web;
+        // sources += `\n[${chunkIndex+1}] [${title}](${uri})\n`
+        sources += `${chunkIndex+1}. [${title}](${uri})\n`
+    })
+
+    updatedText += '\n\n**Grounding Sources**\n' + sources
+
+    // Return the updated text with citations
+    return updatedText;
+}
 //
 // Node Classes
 //
@@ -276,10 +340,9 @@ class OpenAIChat {
         if (this._trigger) {
             // Today and time now
             const timestamp = Date.now()
-            const today = dayjs(timestamp).format('YYYY-MM-DD')
-            const timenow = dayjs(timestamp).format('HH:mm A')
+            const today = "Today is " + dayjs(timestamp).format('YYYY-MM-DD') + " and the current time is " + dayjs(timestamp).format('HH:mm A')
             // Build system message
-            const system_datetime = SYSTEM ? SYSTEM : '' + "\nToday is " + today + " and the current time is " + timenow
+            const system_datetime = SYSTEM ? SYSTEM + "\n" + today : today
             this._messages = [{ role: 'system', content: system_datetime }, ...this._messages]
 
             // Build Body
@@ -444,6 +507,8 @@ class OpenAIInput {
         this.addOutput("message", LiteGraph.EVENT)
 
         this.title = "OpenAI Input"
+        this.color = "#223"
+        this.bgcolor = "#335"
     }
     onGetInputs() {
         return [["agent_result", LiteGraph.ACTION]]
@@ -456,16 +521,16 @@ class OpenAIInput {
             inputFiles.forEach((file) => {
                 switch(file.type) {
                     case 'image': 
-                        imageContent = [...imageContent, {
-                            type: "image_url",
-                            image_url: { url: file.src }
-                        }]
+                            imageContent = [...imageContent, {
+                                type: "image_url",
+                                image_url: { url: file.src }
+                            }]
                         break
                     case 'text':
-                        textContent = [...textContent, {
-                            type: "text",
-                            text: file.src
-                        }]
+                            textContent = [...textContent, {
+                                type: "text",
+                                text: file.src
+                            }]
                         break
                 }
             });
@@ -554,10 +619,9 @@ class AnthropicChat {
             }
             // Today and time now
             const timestamp = Date.now()
-            const today = dayjs(timestamp).format('YYYY-MM-DD')
-            const timenow = dayjs(timestamp).format('HH:mm A')
+            const today = "Today is " + dayjs(timestamp).format('YYYY-MM-DD') + " and the current time is " + dayjs(timestamp).format('HH:mm A')
             // Build system message
-            const system_datetime = SYSTEM ? SYSTEM : '' + "\nToday is " + today + " and the current time is " + timenow
+            const system_datetime = SYSTEM ? SYSTEM + '\n' + today : today
             body.system = system_datetime
 
             // Add tools
@@ -717,6 +781,8 @@ class AnthropicInput {
         this.addOutput("message", LiteGraph.EVENT)
 
         this.title = "Anthropic Input"
+        this.color = "#323"
+        this.bgcolor = "#535"
     }
     onGetInputs() {
         return [["agent_result", LiteGraph.ACTION]]
@@ -782,19 +848,280 @@ class AnthropicInput {
     }
 }
 
+//
+// Gemini Chat
+//
+class GeminiChat {
+    constructor() {
+        // Properties
+        this.properties = {
+            model: "gemini-1.5-flash",
+            temperature: 1.0
+        }
+        // Widgets
+        this.addWidget("combo", "model",
+            "gemini-1.5-flash",
+            { values: ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"], property: "model" }
+        )
+        this.addWidget("number", "temperature",
+            1.0,
+            { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
+        )
+        // Inputs
+        this.addInput("messages", LiteGraph.ACTION)
+        this.addInput("system", "string")
+        this.addInput("agents_info", "object")
+        // Outputs
+        this.addOutput("assistant", LiteGraph.EVENT)
+        this.addOutput("agents_call", LiteGraph.EVENT)
+        // this.addOutput("usage", LiteGraph.EVENT)
+        //Colors
+        this.title = "Gemini Chat"
+        this.color = "#232" // green
+        this.bgcolor = "#353"
+
+        // Variables
+        this._isOk = true
+        this._trigger = false
+        this._messages = null
+        this._toolCalls = null
+    }
+    onAction(action, param) {
+        // console.log(action, param);
+        if (action == 'messages' && this._isOk) {
+            this._messages = param
+            this._trigger = true
+        }
+    }
+    onExecute() {
+        let SYSTEM = this.getInputData(1)
+        let AGENTS = this.getInputData(2)
+
+        if (this._trigger) {
+
+            let body = {
+                model: this.properties.model,
+                stream: true,
+                generateContent: {
+                    contents: this._messages
+                }
+            }
+
+            
+            // Today and time now
+            const timestamp = Date.now()
+            const today = "Today is " + dayjs(timestamp).format('YYYY-MM-DD') + " and the current time is " + dayjs(timestamp).format('HH:mm A')
+            // add system message
+            const system_datetime = SYSTEM ? SYSTEM + '\n' + today : today
+            body.generateContent.system_instruction = {
+                parts: { text: system_datetime } 
+            }
+
+            // add generationConfig
+            body.generateContent.generationConfig = {
+                temperature: this.properties.temperature
+            }
+
+            // add tools
+            if (AGENTS) {
+                // Convert to gemini format
+                const function_declarations = AGENTS.map((item) => item.agent)
+                const tools = [{ function_declarations: function_declarations }]
+
+                body.generateContent.tools = tools
+                body.generateContent.tool_config = {
+                    function_calling_config: {
+                        mode: "AUTO"
+                    }
+                }
+            }
+
+            // console.log('GeminiChat', body)
+
+            // Fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        this._eventSource = undefined
+        this._text = ''
+        this._id = uuidv4()
+        this._name = this.title
+
+        const that = this
+
+        try {
+            this._eventSource = new SSE('/api/stream/gemini', {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                payload: JSON.stringify({ body: body })
+            })
+
+            this._eventSource.addEventListener('error', function (err) {
+                console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
+                that._isOk = false
+            })
+
+            this._eventSource.addEventListener('message', function (e) {
+                if (e.data === '[DONE]') {
+                    return
+                }
+                const stream = JSON.parse(e.data)
+                const candidates = stream.candidates[0]
+                const textPartDelta = candidates.content.parts.find(part => part.text !== undefined)
+                const functionCallPart = candidates.content.parts.find(part => part.functionCall !== undefined)
+                if (candidates.finishReason === 'STOP') {
+                    // text case
+                    if(textPartDelta && textPartDelta.text != "") {
+                        that._text = (that._text ?? '') + textPartDelta.text
+                        addChatMessage({
+                            id: that._id,
+                            content: that._text,
+                            done: true
+                        })
+                        that.trigger("assistant", [{ role: 'model', parts: [{text: that._text}] }])
+                    }
+                    else if(that._toolCalls) {
+                        // console.log(that._toolCalls)
+                        let assistantMessage = [
+                            {
+                                role: 'model',
+                                parts: [{functionCall: that._toolCalls}]
+                            }
+                        ]
+                        // assistant with tool_calls
+                        that.trigger("assistant", assistantMessage)
+                        // build agents_call with memory + assistant
+                        that._messages = [...that._messages, ...assistantMessage]
+                        let agentCall = {
+                            type: 'gemini',
+                            messages: that._messages,
+                            calls: [{
+                                    id: that._id,
+                                    name: that._toolCalls.name,
+                                    arguments: that._toolCalls.args
+                            }]
+                        }
+                        // agents_call
+                        that.trigger("agents_call", agentCall)
+                        // reset
+                        that._toolCalls = null
+                    }
+
+                } else if(textPartDelta) {
+                    that._text = (that._text ?? '') + textPartDelta.text
+                    addChatMessage({
+                        id: that._id,
+                        name: that.title,
+                        color: "#353",
+                        timestamp: Date.now(),
+                        role: 'assistant',
+                        content: that._text,
+                        done: false
+                    })
+                } else if(functionCallPart) {
+                    that._toolCalls = functionCallPart.functionCall
+                }
+            })
+
+        } catch (err) {
+            console.error(err)
+            this._toolCalls = null
+            this._isOk = false
+        }
+    }
+
+}
+
+// Gemini Message Builder
+class GeminiInput {
+    constructor() {
+        // Input
+        this.addInput("content", LiteGraph.ACTION)
+        this.addInput("agent_result", LiteGraph.ACTION)
+        //Output
+        this.addOutput("message", LiteGraph.EVENT)
+
+        this.title = "Gemini Input"
+        this.color = "#232" // green
+        this.bgcolor = "#353"
+    }
+    onGetInputs() {
+        return [["agent_result", LiteGraph.ACTION]]
+    }
+    onAction(action, param) {
+        if( action == 'content' ) {
+            let imageContent = []
+            let textContent = []
+            const inputFiles = param.files? param.files : []
+            inputFiles.forEach((file) => {
+                switch(file.type) {
+                    case 'image':
+                    case 'pdf':
+                    case 'audio':
+                        imageContent = [ ...imageContent, {
+                            inline_data: {
+                                mime_type: file.media_type,
+                                data: file.src.replace('data:', '').replace(/^.+,/, '')
+                            }
+                        }]
+                        break
+                    case 'text':
+                        textContent = [...textContent, {
+                            text: file.src
+                        }]
+                        break
+                }
+            });
+            const message = [{
+                role: "user",
+                parts: [
+                    { text: param.text },
+                    ...textContent,
+                    ...imageContent
+                ]
+            }]
+            this.trigger('message', message)
+        }
+        else if (action == 'agent_result') {
+            const response = param
+            this.trigger('message', [{ role: 'user', parts: [{
+                functionResponse: {
+                    name: response.name,
+                    response: { result: response.content }
+                }
+            }]}])
+        }
+    }
+}
+
 class Input {
     constructor() {
         this.addOutput("content", LiteGraph.EVENT)
 
         this.title = "Chat Input";
-        this.color = "#233"
-        this.bgcolor = "#355"
+        // this.color = "#2a363b" // pale_blue
+        // this.bgcolor = "#3f5159"
+        this.color = "#322"
+        this.bgcolor = "#533"
     }
     chat(param) {
         addChatMessage({
             id: uuidv4(),
             name: 'User',
-            color: "#355",
+            color: "#533",
             timestamp: Date.now(),
             role: 'user',
             content: param.text,
@@ -1117,6 +1444,7 @@ class AgentSpeech {
                     
                     const agentResult = {
                         id: that._call.id,
+                        name: that.properties.name,
                         content: 'Speech generated.'
                     }
                     that.trigger("agent_result", agentResult)
@@ -1259,6 +1587,7 @@ class AgentDallE {
                     const contentText = `${image.data[0].revised_prompt}`
                     const agentResult = {
                         id: that._call.id,
+                        name: that.properties.name,
                         content: contentText
                     }
                     that.trigger("agent_result", agentResult)
@@ -1320,8 +1649,9 @@ class AgentOpenAI {
             if (this._call) {
                 // rebuild messages
                 const type = param.type
-                if( type == 'openai' ) {this._messages = mapOpenAIMessages(param.messages)}
-                else if(type == 'anthropic') {this._messages = mapAnthropicMessages(param.messages)}
+                if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
+                else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
+                else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
                 // add user message
                 this._messages = [...this._messages,
                 { role: 'user', content: this._call.arguments.query }]
@@ -1424,6 +1754,7 @@ class AgentOpenAI {
                     })
                     const agentResult = {
                         id: that._call.id,
+                        name: that.properties.name,
                         content: (that._text) ? that._text : ''
                     }
                     that.trigger("agent_result", agentResult)
@@ -1502,8 +1833,9 @@ class AgentAnthropic {
             if (this._call) {
                 // rebuild messages
                 const type = param.type
-                if( type == 'openai' ) {this._messages = mapOpenAIMessages(param.messages)}
-                else if(type == 'anthropic') {this._messages = mapAnthropicMessages(param.messages)}
+                if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
+                else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
+                else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
                 
                 // add user message
                 this._messages = [...this._messages,
@@ -1632,6 +1964,7 @@ class AgentAnthropic {
                 })
                 const agentResult = {
                     id: that._call.id,
+                    name: that.properties.name,
                     content: (that._text) ? that._text : ''
                 }
                 that.trigger("agent_result", agentResult)
@@ -1685,7 +2018,7 @@ class AgentPerplexity {
         this.addOutput("agent_result", LiteGraph.EVENT)
 
         this.title = "Agent (Perplexity)"
-        this.color = "#432"
+        this.color = "#432" // yellow
         this.bgcolor = "#653"
 
         // Flags
@@ -1700,8 +2033,9 @@ class AgentPerplexity {
             if (this._call) {
                 // rebuild messages
                 const type = param.type
-                if( type == 'openai' ) {this._messages = mapOpenAIMessages(param.messages)}
-                else if(type == 'anthropic') {this._messages = mapAnthropicMessages(param.messages)}
+                if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
+                else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
+                else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
                 // add user message
                 this._messages = [...this._messages,
                 { role: 'user', content: this._call.arguments.query }]
@@ -1793,6 +2127,15 @@ class AgentPerplexity {
                 that._id = stream.id
                 const [{ finish_reason }] = stream.choices
                 if (finish_reason === 'stop') {
+                    // citations
+                    let sources = ''
+                    const citations = stream.citations
+                    if(citations) {
+                        citations.forEach((web, index) => {
+                            sources += `${index+1}. ${web}\n`
+                        })
+                        that._text += '\n\n**Citations**\n' + sources
+                    }
                     addChatMessage({
                         id: that._id,
                         content: that._text,
@@ -1800,6 +2143,7 @@ class AgentPerplexity {
                     })
                     const agentResult = {
                         id: that._call.id,
+                        name: that.properties.name,
                         content: (that._text) ? that._text : ''
                     }
                     that.trigger("agent_result", agentResult)
@@ -1826,6 +2170,201 @@ class AgentPerplexity {
     }
 }
 
+// Agent GoogleSearch
+class AgentGemini {
+    constructor() {
+        // Properties
+        this.properties = {
+            name: "transfer_to_google",
+            desc: "Transfer to Google Search Agent for web searching or research.",
+            model: "gemini-1.5-flash",
+            temperature: 1.0
+        }
+        // Widgets
+        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+        this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
+        this.addWidget("combo", "model",
+            "gemini-1.5-flash",
+            { values: ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"], property: "model" }
+        )
+        this.addWidget("number", "temperature",
+            1.0,
+            { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
+        )
+        // Inputs
+        this.addInput("info(chain)", "object")
+        this.addInput("instruction", "string")
+        this.addInput("agent_call", LiteGraph.ACTION)
+
+        // Outputs
+        this.addOutput("info(chain)", "object")
+        this.addOutput("agent_result", LiteGraph.EVENT)
+
+        this.title = "Agent (Gemini)"
+        this.color = "#232" // green
+        this.bgcolor = "#353"
+
+        this._inputTools = undefined
+        this._messages = []
+        this._call = undefined
+
+        // Flags
+        this._isOk = true
+        this._trigger = false
+    }
+    onAction(action, param) {
+        if (action == 'agent_call') {
+            // check agent name
+            let calls = param.calls
+            this._call = calls.find((item) => item.name == this.properties.name)
+            if (this._call) {
+                // rebuild messages
+                const type = param.type
+                if( type == 'openai' ) this._messages = mapToGeminiMessages(mapOpenAIMessages(param.messages))
+                else if(type == 'anthropic') this._messages = mapToGeminiMessages(mapAnthropicMessages(param.messages))
+                else if(type == 'gemini') this._messages = mapToGeminiMessages(mapGeminiMessages(param.messages))
+                // add user message
+                this._messages = [...this._messages,
+                { role: 'user', parts: [{text: this._call.arguments.query}] }]
+
+                // console.log('agent messages', this._messages)
+                this._trigger = true
+            }
+        }
+    }
+    onExecute() {
+        // Build tool
+        let TOOL = [{
+            "agent": {
+                "name": this.properties.name,
+                "description": this.properties.desc,
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The query that is specific and descriptive."
+                        }
+                    }
+                }
+            }
+        }]
+
+        let INPUT_TOOLS = this.getInputData(0)
+        let SYSTEM = this.getInputData(1)
+
+        if (INPUT_TOOLS) {
+            let parsed = INPUT_TOOLS
+            this.setOutputData(0, [...parsed, ...TOOL])
+        }
+        else {
+            this.setOutputData(0, TOOL)
+        }
+
+        if (this._trigger) {
+            let body = {
+                model: this.properties.model,
+                stream: true,
+                generateContent: {
+                    contents: this._messages,
+                    tools: {"google_search_retrieval": {}}
+                }
+            }
+            // add system message
+            if(SYSTEM) body.generateContent.system_instruction = {
+                parts: { text: SYSTEM } 
+            }
+
+            // console.log('AgentGemini', body)
+
+            // fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        this._eventSource = undefined
+        this._text = ''
+        this._id = uuidv4()
+        this._name = this.title
+
+        const that = this
+
+        try {
+            this._eventSource = new SSE('/api/stream/gemini', {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                payload: JSON.stringify({ body: body })
+            })
+
+            this._eventSource.addEventListener('error', function (err) {
+                console.error(err)
+                const errData = JSON.parse(err.data)
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#533",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: 'ERROR: ' + errData?.error.message,
+                    done: false
+                })
+                that._isOk = false
+            })
+
+            this._eventSource.addEventListener('message', function (e) {
+                if (e.data === '[DONE]') {
+                    return
+                }
+                const stream = JSON.parse(e.data)
+                const candidate = stream.candidates[0]
+                const textPartDelta = candidate.content.parts.find(part => part.text !== undefined)
+                if (candidate.finishReason === 'STOP') {
+                    if(textPartDelta) that._text = (that._text ?? '') + textPartDelta.text
+
+                    // add sources
+                    let textWithSources = that._text
+                    let sourcesWithSuggestion = that._text
+                    if(candidate.groundingMetadata) {
+                        textWithSources = addCitationsToText(candidate, that._text)
+                        sourcesWithSuggestion = textWithSources + candidate.groundingMetadata.searchEntryPoint.renderedContent
+                    }
+
+                    addChatMessage({
+                        id: that._id,
+                        content: sourcesWithSuggestion,
+                        done: true
+                    })
+
+                    const agentResult = {
+                        id: that._call.id,
+                        name: that.properties.name,
+                        content: (textWithSources) ? textWithSources : ''
+                    }
+
+                    that.trigger("agent_result", agentResult)
+
+                } else if(textPartDelta) {
+                    that._text = (that._text ?? '') + textPartDelta.text
+                    addChatMessage({
+                        id: that._id,
+                        name: that.title,
+                        color: "#353",
+                        timestamp: Date.now(),
+                        role: 'assistant',
+                        content: that._text,
+                        done: false
+                    })
+                }
+            })
+        } catch (err) {
+            console.error(err)
+            this._isOk = false
+        }
+    }
+}
+
 // Register in the system
 
 // Chat
@@ -1838,7 +2377,9 @@ LiteGraph.registerNodeType("openai/audio", OpenAITranscription)
 // Anthropic
 LiteGraph.registerNodeType("anthropic/input", AnthropicInput)
 LiteGraph.registerNodeType("anthropic/chat", AnthropicChat )
-
+//Gemini
+LiteGraph.registerNodeType("gemini/input", GeminiInput)
+LiteGraph.registerNodeType("gemini/chat", GeminiChat)
 // Prompt
 LiteGraph.registerNodeType("prompt/text", PromptText )
 LiteGraph.registerNodeType("prompt/template", PromptTemplate)
@@ -1847,6 +2388,7 @@ LiteGraph.registerNodeType("file/audio", AudioInput )
 // Agent
 LiteGraph.registerNodeType("agent/openai", AgentOpenAI)
 LiteGraph.registerNodeType("agent/anthropic", AgentAnthropic)
+LiteGraph.registerNodeType("agent/gemini", AgentGemini)
 LiteGraph.registerNodeType("agent/perplexity", AgentPerplexity)
 // Debug
 LiteGraph.registerNodeType("print/event", PrintEventSlot)
