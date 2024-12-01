@@ -121,7 +121,8 @@
                         {:else}
                             {@html marked.parse(token.raw, {
                                 ...marked.getDefaults(),
-                                renderer
+                                renderer,
+                                gfm: false
                             })}
                         {/if}
                     {/each}
