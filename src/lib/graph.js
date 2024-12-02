@@ -413,15 +413,15 @@ class OpenAIChat {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#335",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
@@ -663,18 +663,18 @@ class AnthropicChat {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#535",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
-                this._toolUse = { id: null, name: null, input: null }
+                that._toolUse = { id: null, name: null, input: null }
                 that._isOk = false
             })
 
@@ -960,7 +960,7 @@ class GeminiChat {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
@@ -968,7 +968,7 @@ class GeminiChat {
                     color: "#593930",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
@@ -1730,15 +1730,15 @@ class AgentOpenAI {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#335",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
@@ -1916,15 +1916,15 @@ class AgentAnthropic {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#535",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
@@ -2112,15 +2112,15 @@ class AgentPerplexity {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#653",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
@@ -2140,6 +2140,7 @@ class AgentPerplexity {
                         })
                         that._text += '\n\n**Citations**\n' + sources
                     }
+                    // console.log(that._text)
                     addChatMessage({
                         id: that._id,
                         content: that._text,
@@ -2308,10 +2309,10 @@ class AgentGemini {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#593930",
                     timestamp: Date.now(),
                     role: 'assistant',
-                    content: 'ERROR: ' + errData?.error.message,
+                    content: errData?.error.message,
                     done: false
                 })
                 that._isOk = false
