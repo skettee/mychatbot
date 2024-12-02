@@ -1,6 +1,6 @@
 {
-    "last_node_id": 5,
-    "last_link_id": 8,
+    "last_node_id": 6,
+    "last_link_id": 9,
     "nodes": [
         {
             "id": 2,
@@ -20,7 +20,7 @@
                 {
                     "name": "content",
                     "type": -1,
-                    "link": 5
+                    "link": 9
                 },
                 {
                     "name": "agent_result",
@@ -82,7 +82,9 @@
                 }
             ],
             "title": "Chat Memory",
-            "properties": {}
+            "properties": {
+                "memory": []
+            }
         },
         {
             "id": 4,
@@ -140,10 +142,10 @@
             "bgcolor": "#335"
         },
         {
-            "id": 5,
+            "id": 6,
             "type": "chat/input",
             "pos": [
-                78,
+                74,
                 96
             ],
             "size": {
@@ -158,26 +160,18 @@
                     "name": "content",
                     "type": -1,
                     "links": [
-                        5
+                        9
                     ],
                     "slot_index": 0
                 }
             ],
             "title": "Chat Input",
             "properties": {},
-            "color": "#322",
-            "bgcolor": "#533"
+            "color": "#2a363b",
+            "bgcolor": "#3f5159"
         }
     ],
     "links": [
-        [
-            5,
-            5,
-            0,
-            2,
-            0,
-            -1
-        ],
         [
             6,
             2,
@@ -204,11 +198,11 @@
         ],
         [
             9,
-            7,
+            6,
             0,
-            8,
+            2,
             0,
-            "object"
+            -1
         ],
         [
             10,
