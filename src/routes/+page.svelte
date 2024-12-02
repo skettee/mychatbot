@@ -11,12 +11,14 @@
     import { browser } from '$app/environment'
     // graph
     import {graph} from '$lib/graph.js'
+    // default workflow
     import defaultNode from '$lib/data/default.json'
     
     let messagesContainerElement;
+    let scrollBehavior = 'auto'
 
     const handleSubmit = async (userPrompt, userFiles) => {
-        // console.log(userPrompt, userFiles)
+        scrollBehavior = 'smooth'
         graph.sendEventToAllNodes("chat", {
             text: userPrompt,
             files: userFiles
@@ -34,6 +36,19 @@
         graph.start()
     })
 
+    // Session
+    /** @type {import('./$types').Snapshot<string>} */
+    export const snapshot = {
+		capture: () => {
+            return {
+                chatMessages: $chatMessages
+            }
+        },
+		restore: (data) => {
+            $chatMessages = data.chatMessages
+        }
+	}
+
     if( browser ) {
         window.onbeforeunload = function(){
             sessionStorage.setItem( "saved-node", JSON.stringify( graph.serialize() ) )
@@ -42,9 +57,8 @@
 
     $: if($chatMessages) {
         if(messagesContainerElement) {
-            // scrollToBottom(messagesContainerElement)
             tick().then(() => messagesContainerElement.scroll(
-                { top: messagesContainerElement.scrollHeight, behavior: 'smooth' }
+                { top: messagesContainerElement.scrollHeight, behavior: scrollBehavior }
             ))
         }
     }
