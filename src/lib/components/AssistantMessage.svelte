@@ -41,14 +41,8 @@
         '#355': 'bg-[#355]',        // cyan
         '#535': 'bg-[#535]',        // purple
         '#653': 'bg-[#653]',        // yellow
-        '#000': 'bg-[#222]'         // black
+        '#353535': 'bg-[#353535]'   // black
     }
-
-    // onMount(()=>{
-    //     messageElement = document.getElementById('chat-assistant');
-    //     // console.log(messageElement)
-    //     // renderLatex()
-    // })
 
     let tokens = []
     let renderer = undefined
