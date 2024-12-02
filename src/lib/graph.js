@@ -877,8 +877,8 @@ class GeminiChat {
         // this.addOutput("usage", LiteGraph.EVENT)
         //Colors
         this.title = "Gemini Chat"
-        this.color = "#232" // green
-        this.bgcolor = "#353"
+        this.color = "#332922" // brown
+        this.bgcolor = "#593930"
 
         // Variables
         this._isOk = true
@@ -965,7 +965,7 @@ class GeminiChat {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#593930",
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: 'ERROR: ' + errData?.error.message,
@@ -1025,7 +1025,7 @@ class GeminiChat {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#353",
+                        color: "#593930",
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -1055,8 +1055,8 @@ class GeminiInput {
         this.addOutput("message", LiteGraph.EVENT)
 
         this.title = "Gemini Input"
-        this.color = "#232" // green
-        this.bgcolor = "#353"
+        this.color = "#332922" // brown
+        this.bgcolor = "#593930"
     }
     onGetInputs() {
         return [["agent_result", LiteGraph.ACTION]]
@@ -1112,16 +1112,14 @@ class Input {
         this.addOutput("content", LiteGraph.EVENT)
 
         this.title = "Chat Input";
-        // this.color = "#2a363b" // pale_blue
-        // this.bgcolor = "#3f5159"
-        this.color = "#322"
-        this.bgcolor = "#533"
+        this.color = "#2a363b" // pale_blue
+        this.bgcolor = "#3f5159"
     }
     chat(param) {
         addChatMessage({
             id: uuidv4(),
             name: 'User',
-            color: "#533",
+            color: "#3f5159",
             timestamp: Date.now(),
             role: 'user',
             content: param.text,
@@ -1137,24 +1135,35 @@ class Memory {
         this.addInput("user", LiteGraph.ACTION)
         this.addInput("assistant", LiteGraph.ACTION)
         this.addOutput("messages", LiteGraph.EVENT)
-        this.properties = {}
+        this.properties = {
+            memory: []
+        }
 
         const that = this
         this.addWidget("button", "reset", "", function () {
-            that._history = []
+            // that._history = []
+            that.properties.memory = []
+            addChatMessage({
+                id: uuidv4(),
+                name: that.title,
+                color: "#353535",
+                timestamp: Date.now(),
+                role: 'assistant',
+                content: `*${that.title} was reset.*`,
+                done: true
+            })
         })
         this.title = "Chat Memory"
-
-        this._history = []
     }
     onAction(action, param) {
         if (action == 'user' && typeof (param) == 'object') {
-            this._history = [...this._history, ...param]
-            this.trigger('messages', this._history)
+            this.properties.memory = [...this.properties.memory, ...param]
+            this.trigger('messages', this.properties.memory)
         }
         else if (action == 'assistant' && typeof (param) == 'object') {
-            this._history = [...this._history, ...param]
+            this.properties.memory = [...this.properties.memory, ...param]
         }
+        // console.log(action, this.properties.memory)
     }
 }
 
@@ -1236,8 +1245,6 @@ class PrintEventSlot {
         this.addInput("event", LiteGraph.ACTION)
 
         this.title = "Print Event"
-        this.color = "#322"
-        this.bgcolor = "#533"
     }
     onAction(action, param) {
         if (action == 'event') {
@@ -1259,7 +1266,7 @@ class PrintEventSlot {
             addChatMessage({
                 id: uuidv4(),
                 name: this.title,
-                color: "#533",
+                color: "#353535",
                 timestamp: Date.now(),
                 role: 'assistant',
                 content: content,
@@ -1285,7 +1292,7 @@ class PrintSlot {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#353535",
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: content,
@@ -1297,7 +1304,7 @@ class PrintSlot {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#533",
+                    color: "#353535",
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: content,
@@ -1307,8 +1314,6 @@ class PrintSlot {
         })
 
         this.title = "Print Slot"
-        this.color = "#322"
-        this.bgcolor = "#533"
     }
     onExecute() {
         this._object = this.getInputData(0)
@@ -1836,7 +1841,6 @@ class AgentAnthropic {
                 if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
                 else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
                 else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
-                
                 // add user message
                 this._messages = [...this._messages,
                 { role: 'user', content: this._call.arguments.query }]
@@ -2201,8 +2205,8 @@ class AgentGemini {
         this.addOutput("agent_result", LiteGraph.EVENT)
 
         this.title = "Agent (Gemini)"
-        this.color = "#232" // green
-        this.bgcolor = "#353"
+        this.color = "#332922" // brown
+        this.bgcolor = "#593930"
 
         this._inputTools = undefined
         this._messages = []
@@ -2350,7 +2354,7 @@ class AgentGemini {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#353",
+                        color: "#593930",
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
