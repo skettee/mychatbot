@@ -7,6 +7,7 @@
     import { browser } from '$app/environment'
 
     import dayjs from 'dayjs'
+    import tooltip from "$lib/tooltip.js"
 
     export let message
 
@@ -124,12 +125,24 @@
             </div>
             {#if message.done}
             <div class=" flex justify-end overflow-x-auto buttons text-stone-900 dark:text-stone-300">
-                <button class="p-1.5 mr-1 rounded-lg hover:bg-stone-300 dark:hover:bg-[#2f2f2f]" on:click={()=>handleCopy(message.content)}>
+                <button class="p-1.5 mr-1 rounded-lg hover:bg-stone-300 dark:hover:bg-[#2f2f2f]" 
+                        title="Copy contents" use:tooltip={{ 
+                            theme: "chat-tooltip",
+                            placement: 'bottom',
+                            arrow: false
+                        }}
+                        on:click={()=>handleCopy(message.content)}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor" class="w-4 h-4">
                         <path d="M360-240q-33 0-56.5-23.5T280-320v-480q0-33 23.5-56.5T360-880h360q33 0 56.5 23.5T800-800v480q0 33-23.5 56.5T720-240H360Zm0-80h360v-480H360v480ZM200-80q-33 0-56.5-23.5T120-160v-560h80v560h440v80H200Zm160-240v-480 480Z"/>
                     </svg>
                 </button>
-                <button class="p-1.5 mr-1 rounded-lg hover:bg-stone-300 dark:hover:bg-[#2f2f2f]" on:click={()=>handleDownlaod(message.content)}>
+                <button class="p-1.5 mr-1 rounded-lg hover:bg-stone-300 dark:hover:bg-[#2f2f2f]" 
+                        title="Download to file" use:tooltip={{ 
+                            theme: "chat-tooltip",
+                            placement: 'bottom',
+                            arrow: false
+                        }}
+                        on:click={()=>handleDownlaod(message.content)}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" fill="currentColor" class="w-4 h-4">
                         <path d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200 200ZM240-160q-33 0-56.5-23.5T160-240v-120h80v120h480v-120h80v120q0 33-23.5 56.5T720-160H240Z"/>
                     </svg>

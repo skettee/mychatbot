@@ -13,3 +13,9 @@
         <slot/>
     </div>
 </div>
+
+<style>
+    :global(.tippy-box[data-theme~='chat-tooltip']) {
+      @apply text-xs text-stone-900 bg-stone-300 dark:text-stone-300 dark:bg-[#2f2f2f];
+    }
+</style>
