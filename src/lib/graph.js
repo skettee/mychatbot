@@ -1150,7 +1150,7 @@ class Memory {
                 timestamp: Date.now(),
                 role: 'assistant',
                 content: `*${that.title} was reset.*`,
-                done: true
+                done: false
             })
         })
         this.title = "Chat Memory"
