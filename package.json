@@ -42,6 +42,7 @@
 		"marked-katex-extension": "^5.1.3",
 		"sse.js": "^2.5.0",
 		"svelte-splitpanes": "^8.0.8",
+		"tippy.js": "^6.3.7",
 		"uuid": "^10.0.0"
 	}
 }
