@@ -71,7 +71,7 @@ export const POST = async({request}) => {
                     message = `${chatResponse.status} error: ${chatResponse.statusText}`
                     break
             }
-            return new Response(`event: error\ndata:{"error": {"message": "${message}", "type": "${chatResponse.statusText}"}}\n\n`, {
+            return new Response(`event: error\ndata:{"error": {"message": "⚠️ ${message}", "type": "${chatResponse.statusText}"}}\n\n`, {
                 headers: {
                     'Content-Type': 'text/event-stream'
                 }

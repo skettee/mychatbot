@@ -1149,7 +1149,7 @@ class Memory {
                 color: "#353535",
                 timestamp: Date.now(),
                 role: 'assistant',
-                content: `*${that.title} was reset.*`,
+                content: `🗑️ ${that.title} was reset.`,
                 done: false
             })
         })
@@ -2304,7 +2304,7 @@ class AgentGemini {
             })
 
             this._eventSource.addEventListener('error', function (err) {
-                console.error(err)
+                // console.error(err)
                 const errData = JSON.parse(err.data)
                 addChatMessage({
                     id: uuidv4(),
