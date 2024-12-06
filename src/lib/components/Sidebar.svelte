@@ -13,7 +13,6 @@
     let desc_workflow = ''
     const handleAddWorkflow = () => {
         // get workflow
-        graph.stop()
         const workflow =  graph.serialize()
         workflow.nodes.forEach(node => {
             if (node.properties && node.properties.memory) {
@@ -35,13 +34,15 @@
         name_workflow = ''
         desc_workflow = ''
 
-        graph.start()
     }
 
     const handleLoadWorkflow = (workflow) => {
         graph.stop()
-        graph.configure(workflow)
-        graph.start()
+        // delay for graph stop
+        setTimeout(() => {
+            graph.configure(workflow)
+            graph.start()
+        }, 10)
     }
 
     const handleRemoveWorkflow = (id) => {
