@@ -13,6 +13,7 @@
     let desc_workflow = ''
     const handleAddWorkflow = () => {
         // get workflow
+        graph.stop()
         const workflow =  graph.serialize()
         workflow.nodes.forEach(node => {
             if (node.properties && node.properties.memory) {
@@ -33,6 +34,8 @@
         localStorage.mychatbot = JSON.stringify($workflows)
         name_workflow = ''
         desc_workflow = ''
+
+        graph.start()
     }
 
     const handleLoadWorkflow = (workflow) => {
