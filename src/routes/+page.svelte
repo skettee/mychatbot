@@ -1,7 +1,8 @@
 <script>
     // store
-    import {chatMessages} from '$lib/store'
+    import {chatMessages, workflows} from '$lib/store'
     // svelte components
+    import Sidebar from '../lib/components/Sidebar.svelte';
     import ChatEditor from '../lib/components/ChatEditor.svelte';
 	import ChatInput from '../lib/components/ChatInput.svelte';
     import ChatView from '../lib/components/ChatView.svelte';
@@ -26,6 +27,12 @@
     }
 
     onMount(() => {
+        // localStorage
+        const savedWorkflow = localStorage.getItem("mychatbot")
+        if( savedWorkflow ) {
+            $workflows = JSON.parse(savedWorkflow)
+        }
+        // sessionStorage
         const savedNode = sessionStorage.getItem("saved-node")
         if( savedNode ) {
             graph.configure( JSON.parse( savedNode ) )
@@ -33,6 +40,7 @@
         else {
             graph.configure(defaultNode)
         }
+        // graph start
         graph.start()
     })
 
@@ -62,16 +70,17 @@
             ))
         }
     }
-    
+
 </script>
 
 <!-- Main Container -->
 <div class="min-h-screen max-h-screen w-full max-w-full flex flex-col">
-    <!-- TODO: Nav -->
+    <!-- Sidebar -->
+    <Sidebar />
     <Splitpanes horizontal >
         <Pane size={50} maxSize={70}>
             <!-- LiteGraph -->
-             <ChatEditor/>
+            <ChatEditor />
         </Pane>
         <Pane>
             <div class="h-full flex flex-col flex-auto pb-24
