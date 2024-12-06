@@ -1,27 +1,28 @@
 {
-    "last_node_id": 16,
-    "last_link_id": 25,
+    "last_node_id": 24,
+    "last_link_id": 33,
     "nodes": [
         {
-            "id": 7,
+            "id": 21,
             "type": "chat/input",
             "pos": [
-                78,
+                97,
                 96
             ],
-            "size": {
-                "0": 140,
-                "1": 26
-            },
+            "size": [
+                140,
+                26
+            ],
             "flags": {},
             "order": 0,
             "mode": 0,
+            "inputs": [],
             "outputs": [
                 {
                     "name": "content",
                     "type": -1,
                     "links": [
-                        22
+                        30
                     ],
                     "slot_index": 0
                 }
@@ -32,57 +33,16 @@
             "bgcolor": "#3f5159"
         },
         {
-            "id": 9,
-            "type": "chat/memory",
+            "id": 22,
+            "type": "openai/input",
             "pos": [
-                503,
-                96
+                291,
+                97
             ],
-            "size": {
-                "0": 210,
-                "1": 78
-            },
-            "flags": {},
-            "order": 2,
-            "mode": 0,
-            "inputs": [
-                {
-                    "name": "user",
-                    "type": -1,
-                    "link": 23
-                },
-                {
-                    "name": "assistant",
-                    "type": -1,
-                    "link": 25
-                }
+            "size": [
+                169.60000610351562,
+                46
             ],
-            "outputs": [
-                {
-                    "name": "messages",
-                    "type": -1,
-                    "links": [
-                        24
-                    ],
-                    "slot_index": 0
-                }
-            ],
-            "title": "Chat Memory",
-            "properties": {
-                "memory": []
-            }
-        },
-        {
-            "id": 15,
-            "type": "gemini/input",
-            "pos": [
-                281,
-                96
-            ],
-            "size": {
-                "0": 169.60000610351562,
-                "1": 46
-            },
             "flags": {},
             "order": 1,
             "mode": 0,
@@ -90,7 +50,7 @@
                 {
                     "name": "content",
                     "type": -1,
-                    "link": 22
+                    "link": 30
                 },
                 {
                     "name": "agent_result",
@@ -103,27 +63,68 @@
                     "name": "message",
                     "type": -1,
                     "links": [
-                        23
+                        31
                     ],
                     "slot_index": 0
                 }
             ],
-            "title": "Gemini Input",
+            "title": "OpenAI Input",
             "properties": {},
-            "color": "#332922",
-            "bgcolor": "#593930"
+            "color": "#223",
+            "bgcolor": "#335"
         },
         {
-            "id": 16,
-            "type": "gemini/chat",
+            "id": 23,
+            "type": "chat/memory",
             "pos": [
-                787,
-                96
+                529,
+                97
             ],
-            "size": {
-                "0": 210,
-                "1": 122
-            },
+            "size": [
+                210,
+                78
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": -1,
+                    "link": 31
+                },
+                {
+                    "name": "assistant",
+                    "type": -1,
+                    "link": 33
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "messages",
+                    "type": -1,
+                    "links": [
+                        32
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "Chat Memory",
+            "properties": {
+                "memory": []
+            }
+        },
+        {
+            "id": 24,
+            "type": "openai/chat",
+            "pos": [
+                823,
+                97
+            ],
+            "size": [
+                210,
+                122
+            ],
             "flags": {},
             "order": 3,
             "mode": 0,
@@ -131,7 +132,7 @@
                 {
                     "name": "messages",
                     "type": -1,
-                    "link": 24
+                    "link": 32
                 },
                 {
                     "name": "system",
@@ -149,7 +150,7 @@
                     "name": "assistant",
                     "type": -1,
                     "links": [
-                        25
+                        33
                     ],
                     "slot_index": 0
                 },
@@ -159,45 +160,77 @@
                     "links": null
                 }
             ],
-            "title": "Gemini Chat",
+            "title": "OpenAI Chat",
             "properties": {
-                "model": "gemini-1.5-flash",
+                "model": "gpt-4o",
                 "temperature": 1
             },
-            "color": "#332922",
-            "bgcolor": "#593930"
+            "color": "#223",
+            "bgcolor": "#335"
         }
     ],
     "links": [
         [
+            26,
+            17,
+            0,
+            18,
+            0,
+            -1
+        ],
+        [
+            27,
+            18,
+            0,
+            19,
+            0,
+            -1
+        ],
+        [
+            28,
+            19,
+            0,
+            20,
+            0,
+            -1
+        ],
+        [
+            29,
+            20,
+            0,
+            19,
+            1,
+            -1
+        ],
+        [
+            30,
+            21,
+            0,
             22,
-            7,
-            0,
-            15,
             0,
             -1
         ],
         [
+            31,
+            22,
+            0,
             23,
-            15,
-            0,
-            9,
             0,
             -1
         ],
         [
+            32,
+            23,
+            0,
             24,
-            9,
-            0,
-            16,
             0,
             -1
         ],
         [
-            25,
-            16,
+            33,
+            24,
             0,
-            9,
+            23,
             1,
             -1
         ]
