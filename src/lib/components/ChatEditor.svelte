@@ -5,8 +5,8 @@
 
     // Canvas
     function editGraph(node) {
-        node.width = window.screen.width
-        node.height = Math.ceil(window.screen.height * 0.7)
+        node.width = window.screen.width * window.devicePixelRatio
+        node.height = Math.ceil(window.screen.height * window.devicePixelRatio * 0.7)
         var canvas = new LGraphCanvas(node, graph);
         canvas.allow_searchbox = false;
     }
