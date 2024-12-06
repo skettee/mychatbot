@@ -30,7 +30,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@comfyorg/litegraph": "^0.7.35",
+		"@comfyorg/litegraph": "^0.8.43",
 		"dayjs": "^1.11.13",
 		"dexie": "^4.0.8",
 		"dexie-relationships": "^1.0.0",

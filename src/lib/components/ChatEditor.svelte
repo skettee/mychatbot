@@ -1,6 +1,6 @@
 <script>
     import {LGraphCanvas} from "@comfyorg/litegraph"
-    import '@comfyorg/litegraph/css/litegraph.css'
+    import '@comfyorg/litegraph/style.css'
     import {graph} from '$lib/graph.js'
 
     // Canvas

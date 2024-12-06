@@ -1,4 +1,5 @@
-import { LGraph, LiteGraph } from "@comfyorg/litegraph"
+import { LGraph, LiteGraph, LGraphNode } from "@comfyorg/litegraph"
+
 import { SSE } from 'sse.js'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
@@ -142,8 +143,9 @@ const addCitationsToText = (candidate, inputText) => {
 //
 
 // AudioInput
-class AudioInput {
+class AudioInput extends LGraphNode {
     constructor() {
+        super()
         this.title = "Audio File"
         // File uploads are currently limited to 25 MB and 
         // the following input file types are supported: 
@@ -207,8 +209,9 @@ class AudioInput {
 
 
 // OpenAI Audio
-class OpenAITranscription {
+class OpenAITranscription extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             model: "whisper-1",
@@ -291,8 +294,9 @@ class OpenAITranscription {
 //
 // OpenAI Chat
 //
-class OpenAIChat {
+class OpenAIChat extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             model: "gpt-4o",
@@ -498,8 +502,9 @@ class OpenAIChat {
 }
 
 // OpenAI Message Builder
-class OpenAIInput {
+class OpenAIInput extends LGraphNode {
     constructor() {
+        super()
         // Input
         this.addInput("content", LiteGraph.ACTION)
         this.addInput("agent_result", LiteGraph.ACTION)
@@ -554,8 +559,9 @@ class OpenAIInput {
 //
 // Anthropic Chat
 //
-class AnthropicChat {
+class AnthropicChat extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             model: "claude-3-5-sonnet-20241022",
@@ -769,8 +775,9 @@ class AnthropicChat {
 }
 
 // Anthropic Message Builder
-class AnthropicInput {
+class AnthropicInput extends LGraphNode {
     constructor() {
+        super()
         this.properties = {
             cache: false
         }
@@ -851,8 +858,9 @@ class AnthropicInput {
 //
 // Gemini Chat
 //
-class GeminiChat {
+class GeminiChat extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             model: "gemini-1.5-flash",
@@ -1046,8 +1054,9 @@ class GeminiChat {
 }
 
 // Gemini Message Builder
-class GeminiInput {
+class GeminiInput extends LGraphNode {
     constructor() {
+        super()
         // Input
         this.addInput("content", LiteGraph.ACTION)
         this.addInput("agent_result", LiteGraph.ACTION)
@@ -1107,8 +1116,9 @@ class GeminiInput {
     }
 }
 
-class Input {
+class Input extends LGraphNode {
     constructor() {
+        super()
         this.addOutput("content", LiteGraph.EVENT)
 
         this.title = "Chat Input";
@@ -1130,8 +1140,9 @@ class Input {
     }
 }
 
-class Memory {
+class Memory extends LGraphNode {
     constructor() {
+        super()
         this.addInput("user", LiteGraph.ACTION)
         this.addInput("assistant", LiteGraph.ACTION)
         this.addOutput("messages", LiteGraph.EVENT)
@@ -1167,8 +1178,9 @@ class Memory {
     }
 }
 
-class PromptTemplate {
+class PromptTemplate extends LGraphNode {
     constructor() {
+        super()
         this.addInput("var1", "string")
         this.addInput("var2", "string")
         this.addInput("var3", "string")
@@ -1218,8 +1230,9 @@ class PromptTemplate {
 }
 
 // Text
-class PromptText {
+class PromptText extends LGraphNode {
     constructor() {
+        super()
         this.addOutput("text", "string")
         this.addOutput("text", LiteGraph.EVENT)
 
@@ -1240,8 +1253,9 @@ class PromptText {
 }
 
 // Print
-class PrintEventSlot {
+class PrintEventSlot extends LGraphNode {
     constructor() {
+        super()
         this.addInput("event", LiteGraph.ACTION)
 
         this.title = "Print Event"
@@ -1276,8 +1290,9 @@ class PrintEventSlot {
     }
 }
 
-class PrintSlot {
+class PrintSlot extends LGraphNode {
     constructor() {
+        super()
         this._string = undefined
         this._object = undefined
 
@@ -1326,8 +1341,9 @@ class PrintSlot {
 //
 
 // Speech Agent
-class AgentSpeech {
+class AgentSpeech extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_speech",
@@ -1459,8 +1475,9 @@ class AgentSpeech {
 }
 
 // DALL-E Agent
-class AgentDallE {
+class AgentDallE extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_generate_image",
@@ -1602,8 +1619,9 @@ class AgentDallE {
 }
 
 // OpenAI Agent
-class AgentOpenAI {
+class AgentOpenAI extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_reasoning",
@@ -1787,8 +1805,9 @@ class AgentOpenAI {
 }
 
 // Anthropic Agent
-class AgentAnthropic {
+class AgentAnthropic extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_writing",
@@ -1982,8 +2001,9 @@ class AgentAnthropic {
 }
 
 // Perplexity Agent
-class AgentPerplexity {
+class AgentPerplexity extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_research",
@@ -2176,8 +2196,9 @@ class AgentPerplexity {
 }
 
 // Agent GoogleSearch
-class AgentGemini {
+class AgentGemini extends LGraphNode {
     constructor() {
+        super()
         // Properties
         this.properties = {
             name: "transfer_to_google",
