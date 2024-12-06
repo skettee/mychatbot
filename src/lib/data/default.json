@@ -1,12 +1,12 @@
 {
-    "last_node_id": 10,
-    "last_link_id": 13,
+    "last_node_id": 16,
+    "last_link_id": 25,
     "nodes": [
         {
             "id": 7,
             "type": "chat/input",
             "pos": [
-                75,
+                78,
                 96
             ],
             "size": {
@@ -21,7 +21,7 @@
                     "name": "content",
                     "type": -1,
                     "links": [
-                        10
+                        22
                     ],
                     "slot_index": 0
                 }
@@ -30,47 +30,6 @@
             "properties": {},
             "color": "#2a363b",
             "bgcolor": "#3f5159"
-        },
-        {
-            "id": 8,
-            "type": "openai/input",
-            "pos": [
-                271,
-                96
-            ],
-            "size": {
-                "0": 169.60000610351562,
-                "1": 46
-            },
-            "flags": {},
-            "order": 1,
-            "mode": 0,
-            "inputs": [
-                {
-                    "name": "content",
-                    "type": -1,
-                    "link": 10
-                },
-                {
-                    "name": "agent_result",
-                    "type": -1,
-                    "link": null
-                }
-            ],
-            "outputs": [
-                {
-                    "name": "message",
-                    "type": -1,
-                    "links": [
-                        11
-                    ],
-                    "slot_index": 0
-                }
-            ],
-            "title": "OpenAI Input",
-            "properties": {},
-            "color": "#223",
-            "bgcolor": "#335"
         },
         {
             "id": 9,
@@ -90,12 +49,12 @@
                 {
                     "name": "user",
                     "type": -1,
-                    "link": 11
+                    "link": 23
                 },
                 {
                     "name": "assistant",
                     "type": -1,
-                    "link": 13
+                    "link": 25
                 }
             ],
             "outputs": [
@@ -103,7 +62,7 @@
                     "name": "messages",
                     "type": -1,
                     "links": [
-                        12
+                        24
                     ],
                     "slot_index": 0
                 }
@@ -114,10 +73,51 @@
             }
         },
         {
-            "id": 10,
-            "type": "openai/chat",
+            "id": 15,
+            "type": "gemini/input",
             "pos": [
-                786,
+                281,
+                96
+            ],
+            "size": {
+                "0": 169.60000610351562,
+                "1": 46
+            },
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [
+                {
+                    "name": "content",
+                    "type": -1,
+                    "link": 22
+                },
+                {
+                    "name": "agent_result",
+                    "type": -1,
+                    "link": null
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "message",
+                    "type": -1,
+                    "links": [
+                        23
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "Gemini Input",
+            "properties": {},
+            "color": "#332922",
+            "bgcolor": "#593930"
+        },
+        {
+            "id": 16,
+            "type": "gemini/chat",
+            "pos": [
+                787,
                 96
             ],
             "size": {
@@ -131,7 +131,7 @@
                 {
                     "name": "messages",
                     "type": -1,
-                    "link": 12
+                    "link": 24
                 },
                 {
                     "name": "system",
@@ -149,7 +149,7 @@
                     "name": "assistant",
                     "type": -1,
                     "links": [
-                        13
+                        25
                     ],
                     "slot_index": 0
                 },
@@ -159,54 +159,46 @@
                     "links": null
                 }
             ],
-            "title": "OpenAI Chat",
+            "title": "Gemini Chat",
             "properties": {
-                "model": "gpt-4o",
+                "model": "gemini-1.5-flash",
                 "temperature": 1
             },
-            "color": "#223",
-            "bgcolor": "#335"
+            "color": "#332922",
+            "bgcolor": "#593930"
         }
     ],
     "links": [
         [
-            10,
+            22,
             7,
             0,
-            8,
+            15,
             0,
             -1
         ],
         [
-            11,
-            8,
+            23,
+            15,
             0,
             9,
             0,
             -1
         ],
         [
-            12,
+            24,
             9,
             0,
-            10,
+            16,
             0,
             -1
         ],
         [
-            13,
-            10,
+            25,
+            16,
             0,
             9,
             1,
-            -1
-        ],
-        [
-            14,
-            8,
-            1,
-            5,
-            2,
             -1
         ]
     ],
