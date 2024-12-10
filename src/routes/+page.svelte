@@ -21,7 +21,7 @@
     const handleSubmit = async (userPrompt, userFiles) => {
         scrollBehavior = 'smooth'
         graph.sendEventToAllNodes("chat", {
-            text: userPrompt,
+            prompt: userPrompt,
             files: userFiles
         } );
     }
