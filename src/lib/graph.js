@@ -142,154 +142,153 @@ const addCitationsToText = (candidate, inputText) => {
 // Node Classes
 //
 
-// AudioInput
-class AudioInput extends LGraphNode {
-    constructor() {
-        super()
-        this.title = "Audio File"
-        // File uploads are currently limited to 25 MB and 
-        // the following input file types are supported: 
-        // mp3, mp4, mpeg, mpga, m4a, wav, and webm.
-        this._audio = new Audio()
-        this._audioStatus = 'stop'
-        this._audioUrl = undefined
-        this._name = undefined
-        this._data = null
-        const that = this
+// AudioFileInput
+// class AudioFileInput extends LGraphNode {
+//     constructor() {
+//         super()
+//         this.title = "Audio File"
+//         // File uploads are currently limited to 25 MB and 
+//         // the following input file types are supported: 
+//         // mp3, mp4, mpeg, mpga, m4a, wav, and webm.
+//         this._audio = new Audio()
+//         this._audioStatus = 'stop'
+//         this._audioUrl = undefined
+//         this._name = undefined
+//         this._data = null
+//         const that = this
 
-        this.addOutput("audio", LiteGraph.EVENT)
-        this.addWidget("button", "Play/Pause", "", function () {
-            if (that._audioUrl) {
-                if (that._audioStatus == 'stop') {
-                    that._audio.play()
-                    that._audioStatus = 'play'
-                }
-                else if (that._audioStatus == 'play') {
-                    that._audioStatus = 'stop'
-                    that._audio.pause()
-                }
-            }
-        })
-        this.addWidget("button", "send", "", function () {
-            if (that._audioUrl) {
-                that.trigger("audio", that._data)
-                URL.revokeObjectURL(that._audioUrl)
-                that._audioUrl = undefined
-            }
-        })
-    }
-    onDropFile(file) {
-        // console.log(file)
-        if (file.size < 25000000 &&
-            (file.type == "audio/mpeg" || file.type == "audio/webm" || file.type == "audio/wav")) {
-            // createObjectURL
-            if (this._audioUrl) {
-                URL.revokeObjectURL(this._audioUrl)
-            }
-            this._data = file
-            this._name = file.name
-            this._audioUrl = URL.createObjectURL(file)
-            // Audio
-            this._audio.src = this._audioUrl
-            this._audio.load()
-            this._audio.controls = true
-            this.boxcolor = "#AEA"
-        }
-        else {
-            this.boxcolor = "red"
-            console.error("error loading audio file")
-        }
-    }
-    onRemoved() {
-        if (this._audioUrl) {
-            URL.revokeObjectURL(this._audioUrl)
-        }
-    }
-}
-
+//         this.addOutput("audio", LiteGraph.EVENT)
+//         this.addWidget("button", "Play/Pause", "", function () {
+//             if (that._audioUrl) {
+//                 if (that._audioStatus == 'stop') {
+//                     that._audio.play()
+//                     that._audioStatus = 'play'
+//                 }
+//                 else if (that._audioStatus == 'play') {
+//                     that._audioStatus = 'stop'
+//                     that._audio.pause()
+//                 }
+//             }
+//         })
+//         this.addWidget("button", "send", "", function () {
+//             if (that._audioUrl) {
+//                 that.trigger("audio", that._data)
+//                 URL.revokeObjectURL(that._audioUrl)
+//                 that._audioUrl = undefined
+//             }
+//         })
+//     }
+//     onDropFile(file) {
+//         // console.log(file)
+//         if (file.size < 25000000 &&
+//             (file.type == "audio/mpeg" || file.type == "audio/webm" || file.type == "audio/wav")) {
+//             // createObjectURL
+//             if (this._audioUrl) {
+//                 URL.revokeObjectURL(this._audioUrl)
+//             }
+//             this._data = file
+//             this._name = file.name
+//             this._audioUrl = URL.createObjectURL(file)
+//             // Audio
+//             this._audio.src = this._audioUrl
+//             this._audio.load()
+//             this._audio.controls = true
+//             this.boxcolor = "#AEA"
+//         }
+//         else {
+//             this.boxcolor = "red"
+//             console.error("error loading audio file")
+//         }
+//     }
+//     onRemoved() {
+//         if (this._audioUrl) {
+//             URL.revokeObjectURL(this._audioUrl)
+//         }
+//     }
+// }
 
 // OpenAI Audio
-class OpenAITranscription extends LGraphNode {
-    constructor() {
-        super()
-        // Properties
-        this.properties = {
-            model: "whisper-1",
-            language: "auto",
-            temperature: 0
-        }
-        this.addInput("audio", LiteGraph.ACTION)
-        this.addInput("prompt", "string")
-        this.addOutput("content", LiteGraph.EVENT);
-        // this.addOutput("text", "string")
+// class OpenAITranscription extends LGraphNode {
+//     constructor() {
+//         super()
+//         // Properties
+//         this.properties = {
+//             model: "whisper-1",
+//             language: "auto",
+//             temperature: 0
+//         }
+//         this.addInput("audio", LiteGraph.ACTION)
+//         // this.addInput("prompt", "string")
+//         this.addOutput("text", LiteGraph.EVENT);
 
-        this.addWidget("combo", "language",
-            "auto",
-            { values: ["auto", "en", "ko", "ja"], property: "language" }
-        )
+//         this.addWidget("combo", "language",
+//             "auto",
+//             { values: ["auto", "en", "ko", "ja"], property: "language" }
+//         )
 
-        // colors
-        this.title = "OpenAI Transcription"
-        this.color = "#223" 
-        this.bgcolor = "#335"
+//         // colors
+//         this.title = "OpenAI Transcription"
+//         this.color = "#223" 
+//         this.bgcolor = "#335"
 
-        // variables
-        this._trigger = false
-        this._audio = null
-        // this._transcription = null
-    }
-    onAction(action, param) {
-        // console.log(action, param)
-        if (action == 'audio') {
-            this._audio = param
-            this._trigger = true
-        }
-    }
-    onExecute() {
-        let PROMPT = this.getInputData(1)
+//         // variables
+//         this._trigger = false
+//         this._audio = null
+//         // this._transcription = null
+//     }
+//     onAction(action, param) {
+//         // console.log(action, param)
+//         if( action == 'audio' && param?.length > 0 && param[0].type == 'audio') {
+//             // only one audio is accepted
+//             this._audio = param[0].src
+//             this._trigger = true
+//         }
+//     }
+//     onExecute() {
+//         // let PROMPT = this.getInputData(1)
 
-        if (this._trigger) {
-            // Build formData
-            const formData = new FormData()
-            formData.append('file', this._audio)
-            formData.append('model', this.properties.model)
-            if (PROMPT) formData.append('prompt', PROMPT)
-            if (this.properties.language != 'auto') formData.append('language', this.properties.language)
+//         if (this._trigger) {
+//             // Build formData
+//             const formData = new FormData()
+//             formData.append('file', this._audio)
+//             formData.append('model', this.properties.model)
+//             // if (PROMPT) formData.append('prompt', PROMPT)
+//             if (this.properties.language != 'auto') formData.append('language', this.properties.language)
 
-            // Fatch Message
-            this.fetch(formData)
-            this._trigger = false
-            this._audio = null
-        }
-    }
+//             // Fatch Message
+//             this.fetch(formData)
+//             this._trigger = false
+//             this._audio = null
+//         }
+//     }
 
-    fetch(formData) {
-        const that = this
+//     fetch(formData) {
+//         const that = this
 
-        try {
-            fetch('/api/openai/audio/transcription', {
-                method: 'POST',
-                headers: {
-                    enctype: 'multipart/form-data'
-                },
-                body: formData
-            }).then((response) => response.json())
-                .then((data) => {
-                    // that._transcription = data.text
-                    addChatMessage({
-                        id: uuidv4(),
-                        name: that.title,
-                        color: "#335",
-                        timestamp: Date.now(),
-                        role: 'assistant',
-                        content: data.text,
-                        done: true
-                    })
-                    that.trigger("content", data)
-                })
-        } catch (err) { console.error(err)} 
-    }
-}
+//         try {
+//             fetch('/api/openai/audio/transcription', {
+//                 method: 'POST',
+//                 headers: {
+//                     enctype: 'multipart/form-data'
+//                 },
+//                 body: formData
+//             }).then((response) => response.json())
+//                 .then((data) => {
+//                     // that._transcription = data.text
+//                     addChatMessage({
+//                         id: uuidv4(),
+//                         name: that.title,
+//                         color: that.bgcolor,
+//                         timestamp: Date.now(),
+//                         role: 'assistant',
+//                         content: data.text,
+//                         done: true
+//                     })
+//                     that.trigger("content", data)
+//                 })
+//         } catch (err) { console.error(err)} 
+//     }
+// }
 
 //
 // OpenAI Chat
@@ -317,6 +316,7 @@ class OpenAIChat extends LGraphNode {
         this.addInput("agents_info", "object")
         // Outputs
         this.addOutput("assistant", LiteGraph.EVENT)
+        this.addOutput("text", LiteGraph.EVENT)
         this.addOutput("agents_call", LiteGraph.EVENT)
         // this.addOutput("usage", LiteGraph.EVENT)
         //Colors
@@ -422,13 +422,12 @@ class OpenAIChat extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#335",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message', function (e) {
@@ -445,6 +444,13 @@ class OpenAIChat extends LGraphNode {
                         done: true
                     })
                     that.trigger("assistant", [{ role: 'assistant', content: that._text }])
+                    that.trigger("text", [{
+                        type: "text",
+                        subtype: "text",
+                        media_type: "text/plain",
+                        name: that._id + ".txt",
+                        src: that._text
+                    }])
                 }
                 if (finish_reason === 'tool_calls') {
                     let assistantMessage = [
@@ -480,7 +486,7 @@ class OpenAIChat extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#335",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -542,7 +548,7 @@ class OpenAIInput extends LGraphNode {
             const message = [{
                 role: "user",
                 content: [
-                    { type: "text", text: param.text},
+                    { type: "text", text: param.prompt},
                     ...textContent,
                     ...imageContent
                 ]
@@ -584,6 +590,7 @@ class AnthropicChat extends LGraphNode {
 
         // Outputs
         this.addOutput("assistant", LiteGraph.EVENT)
+        this.addOutput("text", LiteGraph.EVENT)
         this.addOutput("agents_call", LiteGraph.EVENT)
         // this.addOutput("usage", LiteGraph.EVENT);
 
@@ -674,14 +681,13 @@ class AnthropicChat extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#535",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
                 that._toolUse = { id: null, name: null, input: null }
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message_start', function (e) {
@@ -694,7 +700,7 @@ class AnthropicChat extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#535",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -745,6 +751,13 @@ class AnthropicChat extends LGraphNode {
                 let assistantMessage = [{ role: 'assistant', content: content }]
                 // assistant with tool_use
                 that.trigger("assistant", assistantMessage)
+                that.trigger("text", [{
+                    type: "text",
+                    subtype: "text",
+                    media_type: "text/plain",
+                    name: that._id + ".txt",
+                    src: that._text
+                }])
                 // build agents_call with memory
                 if (that._toolUse.id) {
                     // get tool
@@ -838,7 +851,7 @@ class AnthropicInput extends LGraphNode {
                     ...pdfContent,
                     ...imageContent,
                     ...textContent,
-                    { type: "text", text: param.text}
+                    { type: "text", text: param.prompt}
                 ]
             }]
             this.trigger('message', message)
@@ -864,7 +877,8 @@ class GeminiChat extends LGraphNode {
         // Properties
         this.properties = {
             model: "gemini-1.5-flash",
-            temperature: 1.0
+            temperature: 1.0,
+            grounding: false
         }
         // Widgets
         this.addWidget("combo", "model",
@@ -875,18 +889,21 @@ class GeminiChat extends LGraphNode {
             1.0,
             { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
         )
+        this.addWidget("toggle","grounding",false,"grounding")
+
         // Inputs
         this.addInput("messages", LiteGraph.ACTION)
         this.addInput("system", "string")
         this.addInput("agents_info", "object")
         // Outputs
         this.addOutput("assistant", LiteGraph.EVENT)
+        this.addOutput("text", LiteGraph.EVENT)
         this.addOutput("agents_call", LiteGraph.EVENT)
         // this.addOutput("usage", LiteGraph.EVENT)
         //Colors
         this.title = "Gemini Chat"
-        this.color = "#332922" // brown
-        this.bgcolor = "#593930"
+        this.color = "#432" // yellow
+        this.bgcolor = "#653"
 
         // Variables
         this._isOk = true
@@ -914,16 +931,20 @@ class GeminiChat extends LGraphNode {
                     contents: this._messages
                 }
             }
-
+            // Grounding
+            if(this.properties.grounding) body.generateContent.tools = [{ google_search_retrieval: {}}]
             
+            // Systtem prompt
+            if(SYSTEM) body.generateContent.system_instruction = { parts: { text: SYSTEM } }
+
             // Today and time now
-            const timestamp = Date.now()
-            const today = "Today is " + dayjs(timestamp).format('YYYY-MM-DD') + " and the current time is " + dayjs(timestamp).format('HH:mm A')
-            // add system message
-            const system_datetime = SYSTEM ? SYSTEM + '\n' + today : today
-            body.generateContent.system_instruction = {
-                parts: { text: system_datetime } 
-            }
+            // const timestamp = Date.now()
+            // const today = "Today is " + dayjs(timestamp).format('YYYY-MM-DD') + " and the current time is " + dayjs(timestamp).format('HH:mm A')
+            // // add system message
+            // const system_datetime = SYSTEM ? SYSTEM + '\n' + today : today
+            // body.generateContent.system_instruction = {
+            //     parts: { text: system_datetime } 
+            // }
 
             // add generationConfig
             body.generateContent.generationConfig = {
@@ -936,7 +957,8 @@ class GeminiChat extends LGraphNode {
                 const function_declarations = AGENTS.map((item) => item.agent)
                 const tools = [{ function_declarations: function_declarations }]
 
-                body.generateContent.tools = tools
+                if(this.properties.grounding) body.generateContent.tools = [...body.generateContent.tools, ...tools]
+                else body.generateContent.tools = tools
                 body.generateContent.tool_config = {
                     function_calling_config: {
                         mode: "AUTO"
@@ -973,13 +995,13 @@ class GeminiChat extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#593930",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
+                that._trigger = false
             })
 
             this._eventSource.addEventListener('message', function (e) {
@@ -987,19 +1009,33 @@ class GeminiChat extends LGraphNode {
                     return
                 }
                 const stream = JSON.parse(e.data)
-                const candidates = stream.candidates[0]
-                const textPartDelta = candidates.content.parts.find(part => part.text !== undefined)
-                const functionCallPart = candidates.content.parts.find(part => part.functionCall !== undefined)
-                if (candidates.finishReason === 'STOP') {
+                const candidate = stream.candidates[0]
+                const textPartDelta = candidate.content.parts.find(part => part.text !== undefined)
+                const functionCallPart = candidate.content.parts.find(part => part.functionCall !== undefined)
+                if (candidate.finishReason === 'STOP') {
                     // text case
                     if(textPartDelta && textPartDelta.text != "") {
                         that._text = (that._text ?? '') + textPartDelta.text
+                        // add sources
+                        let textWithSources = that._text
+                        let sourcesWithSuggestion = that._text
+                        if(candidate.groundingMetadata) {
+                            textWithSources = addCitationsToText(candidate, that._text)
+                            sourcesWithSuggestion = textWithSources + candidate.groundingMetadata.searchEntryPoint.renderedContent
+                        }
                         addChatMessage({
                             id: that._id,
-                            content: that._text,
+                            content: sourcesWithSuggestion,
                             done: true
                         })
-                        that.trigger("assistant", [{ role: 'model', parts: [{text: that._text}] }])
+                        that.trigger("assistant", [{ role: 'model', parts: [{text: textWithSources}] }])
+                        that.trigger("text", [{
+                            type: "text",
+                            subtype: "text",
+                            media_type: "text/plain",
+                            name: that._id + ".txt",
+                            src: textWithSources
+                        }])
                     }
                     else if(that._toolCalls) {
                         // console.log(that._toolCalls)
@@ -1033,7 +1069,7 @@ class GeminiChat extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#593930",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -1048,6 +1084,7 @@ class GeminiChat extends LGraphNode {
             console.error(err)
             this._toolCalls = null
             this._isOk = false
+            this._trigger = false
         }
     }
 
@@ -1064,8 +1101,8 @@ class GeminiInput extends LGraphNode {
         this.addOutput("message", LiteGraph.EVENT)
 
         this.title = "Gemini Input"
-        this.color = "#332922" // brown
-        this.bgcolor = "#593930"
+        this.color = "#432" // yellow
+        this.bgcolor = "#653"
     }
     onGetInputs() {
         return [["agent_result", LiteGraph.ACTION]]
@@ -1097,7 +1134,7 @@ class GeminiInput extends LGraphNode {
             const message = [{
                 role: "user",
                 parts: [
-                    { text: param.text },
+                    { text: param.prompt },
                     ...textContent,
                     ...imageContent
                 ]
@@ -1116,12 +1153,12 @@ class GeminiInput extends LGraphNode {
     }
 }
 
-class Input extends LGraphNode {
+class UserInput extends LGraphNode {
     constructor() {
         super()
         this.addOutput("content", LiteGraph.EVENT)
 
-        this.title = "Chat Input";
+        this.title = "User Input";
         this.color = "#2a363b" // pale_blue
         this.bgcolor = "#3f5159"
     }
@@ -1129,14 +1166,106 @@ class Input extends LGraphNode {
         addChatMessage({
             id: uuidv4(),
             name: 'User',
-            color: "#3f5159",
+            color: this.bgcolor,
             timestamp: Date.now(),
             role: 'user',
-            content: param.text,
+            content: param.prompt,
             done: true
         })
 
         this.trigger('content', param)
+    }
+}
+
+class TextInput extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("text", LiteGraph.ACTION)
+        // Output
+        this.addOutput("content", LiteGraph.EVENT)
+        // Widget
+        this._prompt = this.addWidget("text", "prompt:", "Summarize this text.", function () { }, { multiline: true })
+
+        this.serialize_widgets = true
+        this.title = "Text Input"
+    }
+    onAction(action, param) {
+        if( action == 'text' && param?.length > 0 && param[0].type == 'text') {
+            this.trigger("content", {
+                prompt: this._prompt.value,
+                files: param
+            })
+        }
+    }
+}
+
+class AudioInput extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("audio", LiteGraph.ACTION)
+        // Output
+        this.addOutput("content", LiteGraph.EVENT)
+        // Widget
+        this._prompt = this.addWidget("text", "prompt:", "Transcribe this audio.", function () { }, { multiline: true })
+
+        this.serialize_widgets = true
+        this.title = "Audio Input"
+    }
+    onAction(action, param) {
+        if( action == 'audio' && param?.length > 0 && param[0].type == 'audio') {
+            this.trigger("content", {
+                prompt: this._prompt.value,
+                files: param
+            })
+        }
+    }
+}
+
+class ImageInput extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("image", LiteGraph.ACTION)
+        // Output
+        this.addOutput("content", LiteGraph.EVENT)
+        // Widget
+        this._prompt = this.addWidget("text", "prompt:", "Describe this image.", function () { }, { multiline: true })
+
+        this.serialize_widgets = true
+        this.title = "Image Input"
+    }
+    onAction(action, param) {
+        if( action == 'image' && param?.length > 0 && param[0].type == 'image') {
+            this.trigger("content", {
+                prompt: this._prompt.value,
+                files: param
+            })
+        }
+    }
+}
+
+class PDFInput extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("pdf", LiteGraph.ACTION)
+        // Output
+        this.addOutput("content", LiteGraph.EVENT)
+        // Widget
+        this._prompt = this.addWidget("text", "prompt:", "Summarize this pdf.", function () { }, { multiline: true })
+
+        this.serialize_widgets = true
+        this.title = "PDF Input"
+    }
+    onAction(action, param) {
+        if( action == 'pdf' && param?.length > 0 && param[0].type == 'pdf') {
+            this.trigger("content", {
+                prompt: this._prompt.value,
+                files: param
+            })
+        }
     }
 }
 
@@ -1454,7 +1583,7 @@ class AgentSpeech extends LGraphNode {
                         addChatMessage({
                             id: uuidv4(),
                             name: that.title,
-                            color: "#335",
+                            color: that.bgcolor,
                             timestamp: Date.now(),
                             role: 'assistant',
                             content: `<audio src="${e.target.result}" type="${file.type}" autoplay controls style="margin: 1rem 0;"></audio>\n${that._input}\n`,
@@ -1597,7 +1726,7 @@ class AgentDallE extends LGraphNode {
                     addChatMessage({
                         id: uuidv4(),
                         name: that.title,
-                        color: "#335",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         // content: `<img src="${image.data[0].url}" alt="${image.data[0].revised_prompt}" style="margin: 1rem 0;"><i>${image.data[0].revised_prompt}</i>`,
@@ -1753,13 +1882,12 @@ class AgentOpenAI extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#335",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message', function (e) {
@@ -1788,7 +1916,7 @@ class AgentOpenAI extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#335",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -1940,13 +2068,12 @@ class AgentAnthropic extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#535",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message_start', function (e) {
@@ -1959,7 +2086,7 @@ class AgentAnthropic extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#535",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -2042,8 +2169,8 @@ class AgentPerplexity extends LGraphNode {
         this.addOutput("agent_result", LiteGraph.EVENT)
 
         this.title = "Agent (Perplexity)"
-        this.color = "#432" // yellow
-        this.bgcolor = "#653"
+        this.color = "#332922" // brown
+        this.bgcolor = "#593930"
 
         // Flags
         this._isOk = true
@@ -2137,13 +2264,12 @@ class AgentPerplexity extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#653",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message', function (e) {
@@ -2179,7 +2305,7 @@ class AgentPerplexity extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#653",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -2227,8 +2353,8 @@ class AgentGemini extends LGraphNode {
         this.addOutput("agent_result", LiteGraph.EVENT)
 
         this.title = "Agent (Gemini)"
-        this.color = "#332922" // brown
-        this.bgcolor = "#593930"
+        this.color = "#432" // yellow
+        this.bgcolor = "#653"
 
         this._inputTools = undefined
         this._messages = []
@@ -2330,13 +2456,12 @@ class AgentGemini extends LGraphNode {
                 addChatMessage({
                     id: uuidv4(),
                     name: that.title,
-                    color: "#593930",
+                    color: that.bgcolor,
                     timestamp: Date.now(),
                     role: 'assistant',
                     content: errData?.error.message,
                     done: false
                 })
-                that._isOk = false
             })
 
             this._eventSource.addEventListener('message', function (e) {
@@ -2376,7 +2501,7 @@ class AgentGemini extends LGraphNode {
                     addChatMessage({
                         id: that._id,
                         name: that.title,
-                        color: "#593930",
+                        color: that.bgcolor,
                         timestamp: Date.now(),
                         role: 'assistant',
                         content: that._text,
@@ -2391,15 +2516,140 @@ class AgentGemini extends LGraphNode {
     }
 }
 
+// Utilities
+class Divider extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("content", LiteGraph.ACTION)
+        //Output
+        this.addOutput("prompt", LiteGraph.EVENT)
+        this.addOutput("text", LiteGraph.EVENT)
+        this.addOutput("audio", LiteGraph.EVENT)
+        this.addOutput("image", LiteGraph.EVENT)
+        this.addOutput("pdf", LiteGraph.EVENT)
+
+        this.title = "Content Divider"
+    }
+    onAction(action, param) {
+        if( action == 'content') {
+            let textFiles = []
+            let imageFiles = []
+            let audioFiles = []
+            let pdfFiles = []
+            const inputFiles = param.files? param.files : []
+            inputFiles.forEach((file) => {
+                switch(file.type) {
+                    case 'image':
+                        imageFiles = [...imageFiles, file]
+                        break
+                    case 'pdf':
+                        pdfFiles = [...pdfFiles, file]
+                        break
+                    case 'audio':
+                        audioFiles = [...audioFiles, file]
+                        break
+                    case 'text':
+                        textFiles = [...textFiles, file]
+                        break
+                }
+            })
+            const prompt = param.prompt
+
+            if( prompt != '') this.trigger('prompt', prompt) 
+            if( textFiles.length > 0) this.trigger('text', textFiles)
+            if( audioFiles.length > 0) this.trigger('audio', audioFiles)
+            if( imageFiles.length > 0) this.trigger('image', imageFiles)
+            if( pdfFiles.length > 0) this.trigger('pdf', pdfFiles)
+        }
+    }
+}
+
+// Combiner
+class Combiner extends LGraphNode {
+    constructor() {
+        super()
+        // Input
+        this.addInput("prompt", LiteGraph.ACTION)
+        this.addInput("text", LiteGraph.ACTION)
+        this.addInput("audio", LiteGraph.ACTION)
+        this.addInput("image", LiteGraph.ACTION)
+        this.addInput("pdf", LiteGraph.ACTION)
+        // Output
+        this.addOutput("content", LiteGraph.EVENT)
+        // Properties
+        this.properties = {
+            text: false,
+            audio: false,
+            image: false,
+            pdf: false
+        }
+        // Widget
+        this.addWidget("toggle","text",false,"text")
+        this.addWidget("toggle","audio",false,"audio")
+        this.addWidget("toggle","image",false,"image")
+        this.addWidget("toggle","pdf",false,"pdf")
+
+        this.title = "Content Combiner"
+
+        this.content = { prompt: undefined, files: [] }
+        this.isPrompt = false
+        this.isText = false
+        this.isAudio = false
+        this.isImage = false
+        this.isPdf = false
+    }
+    onAction( action, param ) {
+        if( action == 'prompt' ) {
+            this.content.prompt = param 
+            this.isPrompt = true
+        }
+        if( action == 'text') {
+            this.content.files = [...this.content.files, ...param]
+            this.isText = true
+        }
+        if( action == 'audio') {
+            this.content.files = [...this.content.files, ...param]
+            this.isAudio = true
+        }
+        if( action == 'image') {
+            this.content.files = [...this.content.files, ...param]
+            this.isImage = true
+        }
+        if( action == 'pdf') {
+            this.content.files = [...this.content.files, ...param]
+            this.isPdf = true
+        }
+        if(this.isPrompt && 
+            this.isText == this.properties.text && 
+            this.isAudio == this.properties.audio &&
+            this.isImage == this.properties.image &&
+            this.isPdf == this.properties.pdf) {
+                this.trigger('content', this.content)
+                // reset
+                this.content = { prompt: undefined, files: [] }
+                this.isPrompt = false
+                this.isText = false
+                this.isAudio = false
+                this.isImage = false
+                this.isPdf = false
+        }
+    }
+}
+
 // Register in the system
 
-// Chat
-LiteGraph.registerNodeType("chat/input", Input)
-LiteGraph.registerNodeType("chat/memory", Memory)
+// Input
+LiteGraph.registerNodeType("input/user", UserInput)
+LiteGraph.registerNodeType("input/text", TextInput )
+LiteGraph.registerNodeType("input/audio", AudioInput )
+LiteGraph.registerNodeType("input/image", ImageInput )
+LiteGraph.registerNodeType("input/pdf", PDFInput )
+// Memory
+LiteGraph.registerNodeType("memory/memory", Memory)
 // OpenAI
 LiteGraph.registerNodeType("openai/input", OpenAIInput)
 LiteGraph.registerNodeType("openai/chat", OpenAIChat)
-LiteGraph.registerNodeType("openai/audio", OpenAITranscription)
 // Anthropic
 LiteGraph.registerNodeType("anthropic/input", AnthropicInput)
 LiteGraph.registerNodeType("anthropic/chat", AnthropicChat )
@@ -2409,16 +2659,15 @@ LiteGraph.registerNodeType("gemini/chat", GeminiChat)
 // Prompt
 LiteGraph.registerNodeType("prompt/text", PromptText )
 LiteGraph.registerNodeType("prompt/template", PromptTemplate)
-// File
-LiteGraph.registerNodeType("file/audio", AudioInput )
 // Agent
 LiteGraph.registerNodeType("agent/openai", AgentOpenAI)
 LiteGraph.registerNodeType("agent/anthropic", AgentAnthropic)
 LiteGraph.registerNodeType("agent/gemini", AgentGemini)
 LiteGraph.registerNodeType("agent/perplexity", AgentPerplexity)
-// Debug
-LiteGraph.registerNodeType("print/event", PrintEventSlot)
-LiteGraph.registerNodeType("print/slot", PrintSlot)
-// --- v0.0.1 --- //
 LiteGraph.registerNodeType("agent/dall-e", AgentDallE)
 LiteGraph.registerNodeType("agent/speech", AgentSpeech)
+// Utilities
+LiteGraph.registerNodeType("utils/printevent", PrintEventSlot)
+LiteGraph.registerNodeType("utils/printslot", PrintSlot)
+LiteGraph.registerNodeType("utils/divider", Divider)
+LiteGraph.registerNodeType("utils/combiner", Combiner)
