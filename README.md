@@ -18,6 +18,13 @@ https://github.com/user-attachments/assets/9c70968f-8fd4-4169-bf4b-8de75f8b902c
 - 🤖 **Supported LLMs**: OpenAI, Anthropic, Gemini, Perplexity and more LLMs in the future.
 - 🌟 **And more...** : Constantly improving with new features!
 
+Node | Image | Audio | PDF |
+-----|-------|-------|-----|
+OpenAI Chat | O | X | X |
+Anthropic Chat | O | X | O |
+Gemini Chat | O | O | O |
+
+
 ## How to Install
 
 - Clone the repository from Github
