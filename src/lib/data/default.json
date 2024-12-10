@@ -1,43 +1,13 @@
 {
-    "last_node_id": 24,
-    "last_link_id": 33,
+    "last_node_id": 45,
+    "last_link_id": 50,
     "nodes": [
         {
-            "id": 21,
-            "type": "chat/input",
-            "pos": [
-                97,
-                96
-            ],
-            "size": [
-                140,
-                26
-            ],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
-            "inputs": [],
-            "outputs": [
-                {
-                    "name": "content",
-                    "type": -1,
-                    "links": [
-                        30
-                    ],
-                    "slot_index": 0
-                }
-            ],
-            "title": "Chat Input",
-            "properties": {},
-            "color": "#2a363b",
-            "bgcolor": "#3f5159"
-        },
-        {
-            "id": 22,
+            "id": 43,
             "type": "openai/input",
             "pos": [
-                291,
-                97
+                303,
+                96
             ],
             "size": [
                 169.60000610351562,
@@ -50,7 +20,7 @@
                 {
                     "name": "content",
                     "type": -1,
-                    "link": 30
+                    "link": 48
                 },
                 {
                     "name": "agent_result",
@@ -63,7 +33,7 @@
                     "name": "message",
                     "type": -1,
                     "links": [
-                        31
+                        49
                     ],
                     "slot_index": 0
                 }
@@ -74,11 +44,11 @@
             "bgcolor": "#335"
         },
         {
-            "id": 23,
-            "type": "chat/memory",
+            "id": 44,
+            "type": "memory/memory",
             "pos": [
-                529,
-                97
+                547,
+                96
             ],
             "size": [
                 210,
@@ -91,12 +61,12 @@
                 {
                     "name": "user",
                     "type": -1,
-                    "link": 31
+                    "link": 49
                 },
                 {
                     "name": "assistant",
                     "type": -1,
-                    "link": 33
+                    "link": null
                 }
             ],
             "outputs": [
@@ -104,7 +74,7 @@
                     "name": "messages",
                     "type": -1,
                     "links": [
-                        32
+                        50
                     ],
                     "slot_index": 0
                 }
@@ -115,11 +85,11 @@
             }
         },
         {
-            "id": 24,
+            "id": 45,
             "type": "openai/chat",
             "pos": [
-                823,
-                97
+                825,
+                96
             ],
             "size": [
                 210,
@@ -132,7 +102,7 @@
                 {
                     "name": "messages",
                     "type": -1,
-                    "link": 32
+                    "link": 50
                 },
                 {
                     "name": "system",
@@ -149,10 +119,12 @@
                 {
                     "name": "assistant",
                     "type": -1,
-                    "links": [
-                        33
-                    ],
-                    "slot_index": 0
+                    "links": null
+                },
+                {
+                    "name": "text",
+                    "type": -1,
+                    "links": null
                 },
                 {
                     "name": "agents_call",
@@ -167,6 +139,36 @@
             },
             "color": "#223",
             "bgcolor": "#335"
+        },
+        {
+            "id": 42,
+            "type": "input/user",
+            "pos": [
+                106,
+                96
+            ],
+            "size": [
+                140,
+                26
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "content",
+                    "type": -1,
+                    "links": [
+                        48
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "User Input",
+            "properties": {},
+            "color": "#2a363b",
+            "bgcolor": "#3f5159"
         }
     ],
     "links": [
@@ -203,35 +205,27 @@
             -1
         ],
         [
-            30,
-            21,
+            48,
+            42,
             0,
-            22,
-            0,
-            -1
-        ],
-        [
-            31,
-            22,
-            0,
-            23,
+            43,
             0,
             -1
         ],
         [
-            32,
-            23,
+            49,
+            43,
             0,
-            24,
+            44,
             0,
             -1
         ],
         [
-            33,
-            24,
+            50,
+            44,
             0,
-            23,
-            1,
+            45,
+            0,
             -1
         ]
     ],
