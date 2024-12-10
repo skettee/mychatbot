@@ -42,7 +42,7 @@
         setTimeout(() => {
             graph.configure(workflow)
             graph.start()
-        }, 200) 
+        }, 300) 
     }
 
     const handleRemoveWorkflow = (id) => {
