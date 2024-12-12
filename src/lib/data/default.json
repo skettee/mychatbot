@@ -1,6 +1,6 @@
 {
     "last_node_id": 45,
-    "last_link_id": 50,
+    "last_link_id": 51,
     "nodes": [
         {
             "id": 43,
@@ -66,7 +66,7 @@
                 {
                     "name": "assistant",
                     "type": -1,
-                    "link": null
+                    "link": 51
                 }
             ],
             "outputs": [
@@ -83,6 +83,36 @@
             "properties": {
                 "memory": []
             }
+        },
+        {
+            "id": 42,
+            "type": "input/user",
+            "pos": [
+                106,
+                96
+            ],
+            "size": [
+                140,
+                26
+            ],
+            "flags": {},
+            "order": 0,
+            "mode": 0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "content",
+                    "type": -1,
+                    "links": [
+                        48
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "User Input",
+            "properties": {},
+            "color": "#2a363b",
+            "bgcolor": "#3f5159"
         },
         {
             "id": 45,
@@ -119,7 +149,10 @@
                 {
                     "name": "assistant",
                     "type": -1,
-                    "links": null
+                    "links": [
+                        51
+                    ],
+                    "slot_index": 0
                 },
                 {
                     "name": "text",
@@ -139,36 +172,6 @@
             },
             "color": "#223",
             "bgcolor": "#335"
-        },
-        {
-            "id": 42,
-            "type": "input/user",
-            "pos": [
-                106,
-                96
-            ],
-            "size": [
-                140,
-                26
-            ],
-            "flags": {},
-            "order": 0,
-            "mode": 0,
-            "inputs": [],
-            "outputs": [
-                {
-                    "name": "content",
-                    "type": -1,
-                    "links": [
-                        48
-                    ],
-                    "slot_index": 0
-                }
-            ],
-            "title": "User Input",
-            "properties": {},
-            "color": "#2a363b",
-            "bgcolor": "#3f5159"
         }
     ],
     "links": [
@@ -226,6 +229,14 @@
             0,
             45,
             0,
+            -1
+        ],
+        [
+            51,
+            45,
+            0,
+            44,
+            1,
             -1
         ]
     ],
