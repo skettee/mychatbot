@@ -313,6 +313,7 @@ class OpenAIChat extends LGraphNode {
         // Inputs
         this.addInput("messages", LiteGraph.ACTION)
         this.addInput("system", "string")
+        this.addInput("name", "string")
         this.addInput("agents_info", "object")
         // Outputs
         this.addOutput("assistant", LiteGraph.EVENT)
@@ -338,8 +339,12 @@ class OpenAIChat extends LGraphNode {
         }
     }
     onExecute() {
+        let NAME = this.getInputData(2)
         let SYSTEM = this.getInputData(1)
-        let AGENTS = this.getInputData(2)
+        let AGENTS = this.getInputData(3)
+
+        if(NAME) this.title = NAME
+        else this.title = "OpenAI Chat"
 
         if (this._trigger) {
             // Today and time now
@@ -586,6 +591,7 @@ class AnthropicChat extends LGraphNode {
         // Inputs
         this.addInput("messages", LiteGraph.ACTION)
         this.addInput("system", "string")
+        this.addInput("name", "string")
         this.addInput("agents_info", "object")
 
         // Outputs
@@ -618,8 +624,12 @@ class AnthropicChat extends LGraphNode {
         }
     }
     onExecute() {
+        let NAME = this.getInputData(2)
         let SYSTEM = this.getInputData(1)
-        let AGENTS = this.getInputData(2)
+        let AGENTS = this.getInputData(3)
+
+        if(NAME) this.title = NAME
+        else this.title = "Anthropic Chat"
 
         if (this._trigger) {
             // Build Body
@@ -883,7 +893,7 @@ class GeminiChat extends LGraphNode {
         // Widgets
         this.addWidget("combo", "model",
             "gemini-1.5-flash",
-            { values: ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro"], property: "model" }
+            { values: ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-1.5-pro", "gemini-2.0-flash-exp"], property: "model" }
         )
         this.addWidget("number", "temperature",
             1.0,
@@ -894,6 +904,7 @@ class GeminiChat extends LGraphNode {
         // Inputs
         this.addInput("messages", LiteGraph.ACTION)
         this.addInput("system", "string")
+        this.addInput("name", "string")
         this.addInput("agents_info", "object")
         // Outputs
         this.addOutput("assistant", LiteGraph.EVENT)
@@ -919,8 +930,12 @@ class GeminiChat extends LGraphNode {
         }
     }
     onExecute() {
+        let NAME = this.getInputData(2)
         let SYSTEM = this.getInputData(1)
-        let AGENTS = this.getInputData(2)
+        let AGENTS = this.getInputData(3)
+
+        if(NAME) this.title = NAME
+        else this.title = "Gemini Chat"
 
         if (this._trigger) {
 
@@ -1269,6 +1284,7 @@ class PDFInput extends LGraphNode {
     }
 }
 
+
 class Memory extends LGraphNode {
     constructor() {
         super()
@@ -1313,27 +1329,45 @@ class PromptTemplate extends LGraphNode {
         this.addInput("var1", "string")
         this.addInput("var2", "string")
         this.addInput("var3", "string")
-        this.addOutput("text", "string")
-        this.addOutput("text", LiteGraph.EVENT)
+        this.addOutput("prompt", "string")
+        // this.addOutput("text", LiteGraph.EVENT)
 
         this._prompt = this.addWidget("text", "", "Refer to {var1}", function () { }, { multiline: true })
         this._var1 = undefined
         this._var2 = undefined
         this._var3 = undefined
         const that = this
-        this.addWidget("button", "send", "", function () {
+        // this.addWidget("button", "send", "", function () {
+        //     if (that._prompt.value) {
+        //         let prompt = that._prompt.value
+        //         if (that._var1) {
+        //             prompt = prompt.replace("{var1}", that._var1)
+        //         }
+        //         if (that._var2) {
+        //             prompt = prompt.replace("{var2}", that._var2)
+        //         }
+        //         if (that._var3) {
+        //             prompt = prompt.replace("{var3}", that._var3)
+        //         }
+        //         that.trigger("text", prompt)
+        //     }
+        // })
+        this.addWidget("button", "print", "", function () {
             if (that._prompt.value) {
                 let prompt = that._prompt.value
-                if (that._var1) {
-                    prompt = prompt.replace("{var1}", that._var1)
-                }
-                if (that._var2) {
-                    prompt = prompt.replace("{var2}", that._var2)
-                }
-                if (that._var3) {
-                    prompt = prompt.replace("{var3}", that._var3)
-                }
-                that.trigger("text", prompt)
+                if (that._var1) prompt = prompt.replaceAll("{var1}", that._var1)
+                if (that._var2) prompt = prompt.replaceAll("{var2}", that._var2)
+                if (that._var3) prompt = prompt.replaceAll("{var3}", that._var3)
+                const content = "<pre>" + prompt + "</pre>"
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#353535",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: content,
+                    done: false
+                })
             }
         })
         this.serialize_widgets = true
@@ -1345,13 +1379,13 @@ class PromptTemplate extends LGraphNode {
         this._var3 = this.getInputData(2)
         let prompt = this._prompt.value
         if (this._var1) {
-            prompt = prompt.replace("{var1}", this._var1)
+            prompt = prompt.replaceAll("{var1}", this._var1)
         }
         if (this._var2) {
-            prompt = prompt.replace("{var2}", this._var2)
+            prompt = prompt.replaceAll("{var2}", this._var2)
         }
         if (this._var3) {
-            prompt = prompt.replace("{var3}", this._var3)
+            prompt = prompt.replaceAll("{var3}", this._var3)
         }
 
         this.setOutputData(0, prompt)
@@ -1362,15 +1396,27 @@ class PromptTemplate extends LGraphNode {
 class PromptText extends LGraphNode {
     constructor() {
         super()
-        this.addOutput("text", "string")
-        this.addOutput("text", LiteGraph.EVENT)
+        this.addOutput("prompt", "string")
+        // this.addOutput("prompt", LiteGraph.EVENT)
 
         this._prompt = this.addWidget("text", "", "You are a helpful AI assistant.", function () { }, { multiline: true })
         const that = this
-        this.addWidget("button", "send", "", function () {
-            if (that._prompt.value) {
-                that.trigger("text", that._prompt.value)
-            }
+        // this.addWidget("button", "send", "", function () {
+        //     if (that._prompt.value) {
+        //         that.trigger("prompt", that._prompt.value)
+        //     }
+        // })
+        this.addWidget("button", "print", "", function () {
+            const content = "<pre>" + that._prompt.value + "</pre>"
+            addChatMessage({
+                id: uuidv4(),
+                name: that.title,
+                color: "#353535",
+                timestamp: Date.now(),
+                role: 'assistant',
+                content: content,
+                done: false
+            })
         })
 
         this.serialize_widgets = true
@@ -1381,87 +1427,58 @@ class PromptText extends LGraphNode {
     }
 }
 
-// Print
-class PrintEventSlot extends LGraphNode {
+class PromptIntro extends LGraphNode {
     constructor() {
         super()
-        this.addInput("event", LiteGraph.ACTION)
+        this._prompt = this.addWidget("text", "", "## Welcome to myChatbot 🤖", function () { }, { multiline: true })
+        const that = this
+        this.addWidget("button", "print", "", function () {
+            if (that._prompt.value) that.printIntro(that._prompt.value)
+        })
+    this.addOutput('prompt', "string")
 
-        this.title = "Print Event"
+        this.serialize_widgets = true
+        this.title = "Prompt Intro"
     }
-    onAction(action, param) {
-        if (action == 'event') {
-            let content = undefined
-            switch (typeof (param)) {
-                case 'object':
-                    content = "```json\n" + JSON.stringify(param, null, 2) + "\n```"
-                    break
-                case 'string':
-                    content = "<pre>" + param + "</pre>"
-                    break
-                case 'number':
-                    content = "<pre>" + param.toString() + "</pre>"
-                    break
-                default:
-                    content = "<pre> undefined </pre>"
-            }
-
-            addChatMessage({
-                id: uuidv4(),
-                name: this.title,
-                color: "#353535",
-                timestamp: Date.now(),
-                role: 'assistant',
-                content: content,
-                done: true
-            })
-        }
+    onAdded() {
+        this.printIntro(this._prompt.value)
+    }
+    printIntro(text) {
+        addChatMessage({
+            id: uuidv4(),
+            name: this.title,
+            color: "#353535",
+            timestamp: Date.now(),
+            role: 'assistant',
+            content: text,
+            done: false
+        })
+    }
+    onExecute() {
+        this.setOutputData(0, this._prompt.value)
     }
 }
 
-class PrintSlot extends LGraphNode {
+class PromptCharacter extends LGraphNode {
     constructor() {
         super()
-        this._string = undefined
-        this._object = undefined
+        // Properties
+        this.properties = {
+            name: 'Zuru',
+            desc: '- name: Zuru (Korean: 즈루, Japanese: づる)\n- gender: Female\n- age: 20\n- job: AI assistant\n- speaking: Zuru is friendly, soft-spoken, and somewhat playful.\n- personality: Kind, gentle, carefree, playful and moral.'
+        }
+        // Widgets
+        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+        this.addWidget("text", "desc", this.properties.desc, function () { }, { property: "desc", multiline: true })
+        // Output
+        this.addOutput('name', 'string')
+        this.addOutput('desc', 'string')
 
-        this.addInput("object", "object")
-        this.addInput("string", "string")
-
-        const that = this
-        this.addWidget("button", "print", "", function () {
-            let content = undefined
-            if (that._string && !that._object) {
-                content = "<pre>" + that._string + "</pre>"
-                addChatMessage({
-                    id: uuidv4(),
-                    name: that.title,
-                    color: "#353535",
-                    timestamp: Date.now(),
-                    role: 'assistant',
-                    content: content,
-                    done: true
-                })
-            }
-            else if (that._object && !that._string) {
-                content = "```json\n" + JSON.stringify(that._object, null, 2) + "\n```"
-                addChatMessage({
-                    id: uuidv4(),
-                    name: that.title,
-                    color: "#353535",
-                    timestamp: Date.now(),
-                    role: 'assistant',
-                    content: content,
-                    done: true
-                })
-            }
-        })
-
-        this.title = "Print Slot"
+        this.title = 'Prompt Character'
     }
     onExecute() {
-        this._object = this.getInputData(0)
-        this._string = this.getInputData(1)
+        this.setOutputData(0, this.properties.name)
+        this.setOutputData(1, this.properties.desc)
     }
 }
 
@@ -2517,6 +2534,89 @@ class AgentGemini extends LGraphNode {
 }
 
 // Utilities
+class PrintEventSlot extends LGraphNode {
+    constructor() {
+        super()
+        this.addInput("event", LiteGraph.ACTION)
+
+        this.title = "Print Event"
+    }
+    onAction(action, param) {
+        if (action == 'event') {
+            let content = undefined
+            switch (typeof (param)) {
+                case 'object':
+                    content = "```json\n" + JSON.stringify(param, null, 2) + "\n```"
+                    break
+                case 'string':
+                    content = "<pre>" + param + "</pre>"
+                    break
+                case 'number':
+                    content = "<pre>" + param.toString() + "</pre>"
+                    break
+                default:
+                    content = "<pre> undefined </pre>"
+            }
+
+            addChatMessage({
+                id: uuidv4(),
+                name: this.title,
+                color: "#353535",
+                timestamp: Date.now(),
+                role: 'assistant',
+                content: content,
+                done: true
+            })
+        }
+    }
+}
+
+class PrintSlot extends LGraphNode {
+    constructor() {
+        super()
+        this._string = undefined
+        this._object = undefined
+
+        this.addInput("object", "object")
+        this.addInput("string", "string")
+
+        const that = this
+        this.addWidget("button", "print", "", function () {
+            let content = undefined
+            if (that._string && !that._object) {
+                content = "<pre>" + that._string + "</pre>"
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#353535",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: content,
+                    done: true
+                })
+            }
+            else if (that._object && !that._string) {
+                content = "```json\n" + JSON.stringify(that._object, null, 2) + "\n```"
+                addChatMessage({
+                    id: uuidv4(),
+                    name: that.title,
+                    color: "#353535",
+                    timestamp: Date.now(),
+                    role: 'assistant',
+                    content: content,
+                    done: true
+                })
+            }
+        })
+
+        this.title = "Print Slot"
+    }
+    onExecute() {
+        this._object = this.getInputData(0)
+        this._string = this.getInputData(1)
+    }
+}
+
 class Divider extends LGraphNode {
     constructor() {
         super()
@@ -2671,3 +2771,6 @@ LiteGraph.registerNodeType("utils/printevent", PrintEventSlot)
 LiteGraph.registerNodeType("utils/printslot", PrintSlot)
 LiteGraph.registerNodeType("utils/divider", Divider)
 LiteGraph.registerNodeType("utils/combiner", Combiner)
+// Character
+LiteGraph.registerNodeType("prompt/intro", PromptIntro)
+LiteGraph.registerNodeType("prompt/character", PromptCharacter)
