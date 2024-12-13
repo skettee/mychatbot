@@ -1,6 +1,6 @@
 {
-    "last_node_id": 45,
-    "last_link_id": 51,
+    "last_node_id": 46,
+    "last_link_id": 53,
     "nodes": [
         {
             "id": 43,
@@ -44,47 +44,6 @@
             "bgcolor": "#335"
         },
         {
-            "id": 44,
-            "type": "memory/memory",
-            "pos": [
-                547,
-                96
-            ],
-            "size": [
-                210,
-                78
-            ],
-            "flags": {},
-            "order": 2,
-            "mode": 0,
-            "inputs": [
-                {
-                    "name": "user",
-                    "type": -1,
-                    "link": 49
-                },
-                {
-                    "name": "assistant",
-                    "type": -1,
-                    "link": 51
-                }
-            ],
-            "outputs": [
-                {
-                    "name": "messages",
-                    "type": -1,
-                    "links": [
-                        50
-                    ],
-                    "slot_index": 0
-                }
-            ],
-            "title": "Chat Memory",
-            "properties": {
-                "memory": []
-            }
-        },
-        {
             "id": 42,
             "type": "input/user",
             "pos": [
@@ -115,15 +74,56 @@
             "bgcolor": "#3f5159"
         },
         {
-            "id": 45,
-            "type": "openai/chat",
+            "id": 44,
+            "type": "memory/memory",
             "pos": [
-                825,
+                547,
                 96
             ],
             "size": [
                 210,
-                122
+                78
+            ],
+            "flags": {},
+            "order": 2,
+            "mode": 0,
+            "inputs": [
+                {
+                    "name": "user",
+                    "type": -1,
+                    "link": 49
+                },
+                {
+                    "name": "assistant",
+                    "type": -1,
+                    "link": 53
+                }
+            ],
+            "outputs": [
+                {
+                    "name": "messages",
+                    "type": -1,
+                    "links": [
+                        52
+                    ],
+                    "slot_index": 0
+                }
+            ],
+            "title": "Chat Memory",
+            "properties": {
+                "memory": []
+            }
+        },
+        {
+            "id": 46,
+            "type": "openai/chat",
+            "pos": [
+                831,
+                96
+            ],
+            "size": [
+                210,
+                142
             ],
             "flags": {},
             "order": 3,
@@ -132,10 +132,15 @@
                 {
                     "name": "messages",
                     "type": -1,
-                    "link": 50
+                    "link": 52
                 },
                 {
                     "name": "system",
+                    "type": "string",
+                    "link": null
+                },
+                {
+                    "name": "name",
                     "type": "string",
                     "link": null
                 },
@@ -150,7 +155,7 @@
                     "name": "assistant",
                     "type": -1,
                     "links": [
-                        51
+                        53
                     ],
                     "slot_index": 0
                 },
@@ -224,16 +229,16 @@
             -1
         ],
         [
-            50,
+            52,
             44,
             0,
-            45,
+            46,
             0,
             -1
         ],
         [
-            51,
-            45,
+            53,
+            46,
             0,
             44,
             1,
