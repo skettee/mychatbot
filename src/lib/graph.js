@@ -512,6 +512,181 @@ class OpenAIChat extends LGraphNode {
     }
 }
 
+// OpenAI Speech
+class OpenAISpeech extends LGraphNode {
+    constructor() {
+        super()
+        // Properties
+        this.properties = {
+            model: "tts-1",
+            voice: "alloy",
+            response_format: "mp3",
+            speed: 1.0
+        }
+        // Widgets
+        this.addWidget("combo", "voice",
+            "alloy",
+            { values: ["alloy", "echo", "fable", "onyx", "nova", "shimmer"], property: "voice" }
+        )
+        // Input
+        this.addInput("prompt", LiteGraph.ACTION)
+
+        this.title = "OpenAI Speech"
+        this.color = "#223"
+        this.bgcolor = "#335"
+
+
+        this._input = undefined
+        // Flags
+        this._isOk = true
+        this._trigger = false
+    }
+    onAction( action, param ) {
+        if( action == 'prompt' ) {
+            this._input = param.prompt
+            this._trigger = true
+        }
+    }
+    onExecute() {
+        if(this._trigger) {
+            // Build Body
+            let body = {
+                model: this.properties.model,
+                input: this._input,
+                voice: this.properties.voice,
+                response_format: this.properties.response_format,
+                speed: this.properties.speed
+            }
+            // console.log('OpenAISpeech', body)
+
+            // fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        const that = this
+
+        try {
+            fetch('/api/openai/audio/speech', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            }).then((response) => response.blob())
+                .then((file) => {
+                    // console.log(file)
+                    let reader = new FileReader()
+                    reader.onload = (e) => {
+                        addChatMessage({
+                            id: uuidv4(),
+                            name: that.title,
+                            color: that.bgcolor,
+                            timestamp: Date.now(),
+                            role: 'assistant',
+                            content: `<audio src="${e.target.result}" type="${file.type}" autoplay controls style="margin: 1rem 0;"></audio>\n${that._input}\n`,
+                            done: false
+                        })
+                    }
+                    reader.readAsDataURL(file)
+                    
+                })
+        } catch (err) { console.error(err)} 
+    }
+}
+
+// OpenAI Dall-E
+class OpenAIDallE extends LGraphNode {
+    constructor() {
+        super()
+        // Properties
+        this.properties = {
+            model: "dall-e-3",
+            n: 1,
+            quality: 'standard',
+            response_format: 'url',
+            size: "1792x1024",
+            style: "vivid"
+        }
+
+        this._prompt = undefined
+
+        this.addWidget("combo", "quality",
+            "standard",
+            { values: ["standard", "hd"], property: "quality" }
+        )
+        this.addWidget("combo", "size",
+            "1792x1024",
+            { values: ["1024x1024", "1792x1024", "1024x1792"], property: "size" }
+        )
+        this.addWidget("combo", "style",
+            "vivid",
+            { values: ["vivid", "natural"], property: "vivid" }
+        )
+
+        // Input
+        this.addInput("prompt", LiteGraph.ACTION)
+        
+        this.title = "OpenAI DALL-E"
+        this.color = "#223"
+        this.bgcolor = "#335"
+
+        // Flags
+        this._isOk = true
+        this._trigger = false
+    }
+    onAction( action, param ) {
+        if( action == 'prompt') {
+            this._prompt = param.prompt
+            this._trigger = true
+        }
+    }
+    onExecute() {
+        if (this._trigger) {
+            // Build Body
+            let body = {
+                model: this.properties.model,
+                prompt: this._prompt,
+                n: this.properties.n,
+                quality: this.properties.quality,
+                response_format: this.properties.response_format,
+                size: this.properties.size,
+                style: this.properties.style
+            }
+            // console.log('OpenAIDallE', body)
+
+            // fatch Message
+            this.fetch(body)
+            this._trigger = false
+        }
+    }
+    fetch(body) {
+        const that = this
+        try {
+            fetch('/api/openai/dalle/generation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            }).then((response) => response.json())
+                .then((image) => {
+                    addChatMessage({
+                        id: uuidv4(),
+                        name: that.title,
+                        color: that.bgcolor,
+                        timestamp: Date.now(),
+                        role: 'assistant',
+                        content: `\n![Image](${image.data[0].url})\n*${image.data[0].revised_prompt}*\n`,
+                        done: false
+                    })
+                })
+        } catch (err) { console.error(err)} 
+    }
+}
+
+
 // OpenAI Message Builder
 class OpenAIInput extends LGraphNode {
     constructor() {
@@ -1200,6 +1375,7 @@ class TextInput extends LGraphNode {
         // Output
         this.addOutput("content", LiteGraph.EVENT)
         // Widget
+        this._toggle = this.addWidget("toggle","prompt",true,"prompt")
         this._prompt = this.addWidget("text", "prompt:", "Summarize this text.", function () { }, { multiline: true })
 
         this.serialize_widgets = true
@@ -1207,10 +1383,25 @@ class TextInput extends LGraphNode {
     }
     onAction(action, param) {
         if( action == 'text' && param?.length > 0 && param[0].type == 'text') {
-            this.trigger("content", {
-                prompt: this._prompt.value,
-                files: param
-            })
+            if(this._toggle.value) {
+                this.trigger("content", {
+                    prompt: this._prompt.value,
+                    files: param
+                })
+            }
+            else {
+                let prompt = undefined
+                if(param.length > 0) {
+                    prompt = param.reduce((acc, cur)=>{
+                        // console.log('acc: ', acc, 'cur: ', cur)
+                        if(acc) return acc + '\n' + cur.src
+                        return cur.src
+                    }, null)
+                }
+                this.trigger("content", {
+                    prompt: prompt
+                })
+            }
         }
     }
 }
@@ -1283,7 +1474,6 @@ class PDFInput extends LGraphNode {
         }
     }
 }
-
 
 class Memory extends LGraphNode {
     constructor() {
@@ -2774,3 +2964,7 @@ LiteGraph.registerNodeType("utils/combiner", Combiner)
 // Character
 LiteGraph.registerNodeType("prompt/intro", PromptIntro)
 LiteGraph.registerNodeType("prompt/character", PromptCharacter)
+// OpenAI
+LiteGraph.registerNodeType("openai/speech", OpenAISpeech)
+LiteGraph.registerNodeType("openai/dall-e", OpenAIDallE)
+
