@@ -1,5 +1,5 @@
 {
-    "last_node_id": 46,
+    "last_node_id": 48,
     "last_link_id": 53,
     "nodes": [
         {
@@ -14,18 +14,18 @@
                 46
             ],
             "flags": {},
-            "order": 1,
+            "order": 2,
             "mode": 0,
             "inputs": [
                 {
+                    "link": 48,
                     "name": "content",
-                    "type": -1,
-                    "link": 48
+                    "type": -1
                 },
                 {
+                    "link": null,
                     "name": "agent_result",
-                    "type": -1,
-                    "link": null
+                    "type": -1
                 }
             ],
             "outputs": [
@@ -85,18 +85,18 @@
                 78
             ],
             "flags": {},
-            "order": 2,
+            "order": 3,
             "mode": 0,
             "inputs": [
                 {
+                    "link": 49,
                     "name": "user",
-                    "type": -1,
-                    "link": 49
+                    "type": -1
                 },
                 {
+                    "link": 53,
                     "name": "assistant",
-                    "type": -1,
-                    "link": 53
+                    "type": -1
                 }
             ],
             "outputs": [
@@ -126,28 +126,28 @@
                 142
             ],
             "flags": {},
-            "order": 3,
+            "order": 4,
             "mode": 0,
             "inputs": [
                 {
+                    "link": 52,
                     "name": "messages",
-                    "type": -1,
-                    "link": 52
+                    "type": -1
                 },
                 {
+                    "link": null,
                     "name": "system",
-                    "type": "string",
-                    "link": null
+                    "type": "string"
                 },
                 {
+                    "link": null,
                     "name": "name",
-                    "type": "string",
-                    "link": null
+                    "type": "string"
                 },
                 {
+                    "link": null,
                     "name": "agents_info",
-                    "type": "object",
-                    "link": null
+                    "type": "object"
                 }
             ],
             "outputs": [
@@ -177,6 +177,35 @@
             },
             "color": "#223",
             "bgcolor": "#335"
+        },
+        {
+            "id": 48,
+            "type": "prompt/printme",
+            "pos": [
+                550,
+                240
+            ],
+            "size": [
+                210,
+                82
+            ],
+            "flags": {},
+            "order": 1,
+            "mode": 0,
+            "inputs": [],
+            "outputs": [
+                {
+                    "name": "prompt",
+                    "type": "string",
+                    "links": null
+                }
+            ],
+            "title": "Print Me",
+            "properties": {},
+            "widgets_values": [
+                "## Welcome to OpenAI Chat Basic Workflow!\n- Make sure that you have an OpenAI API key and that OPENAI_API_KEY is set.\n- You can create OpenAI API Key on [API keys - OpenAI API](https://platform.openai.com/api-keys)\n### Models Overview\n1. GPT-4o\n\t- Context window: 128,000 tokens.\n\t- Max output tokens: 16,384 tokens.\n\t- Image upload\n\t\t- Format: JPEG, PNG, WEBP and non-animated GIF \n\t\t- Maximum 20MB per image\n\t- Price\n\t\t- $2.50 / 1M input tokens.\n\t\t- $1.25 / 1M cached input tokens.\n\t\t- $10.00 / 1M output tokens.\n2. GPT-4o-mini\n\t- Context window: 128,000 tokens.\n\t- Max output tokens: 16,384 tokens.\n\t- Image upload\n\t\t- Format: JPEG, PNG, WEBP and non-animated GIF \n\t\t- Maximum 20MB per image\n\t- Price\n\t\t- $0.150 / 1M input tokens.\n\t\t- $0.075 / 1M cached input tokens.\n\t\t- $0.600 / 1M output tokens.",
+                ""
+            ]
         }
     ],
     "links": [
