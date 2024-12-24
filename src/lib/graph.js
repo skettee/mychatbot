@@ -3,8 +3,8 @@ import { LGraph, LiteGraph, LGraphNode } from "@comfyorg/litegraph"
 import { SSE } from 'sse.js'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
-
-import {chatMessages} from '$lib/store'
+import { get } from 'svelte/store'
+import {chatMessages, userInfo} from '$lib/store'
 
 // graph
 export const graph = new LGraph();
@@ -1355,7 +1355,7 @@ class UserInput extends LGraphNode {
     chat(param) {
         addChatMessage({
             id: uuidv4(),
-            name: 'User',
+            name: get(userInfo).name,
             color: this.bgcolor,
             timestamp: Date.now(),
             role: 'user',
@@ -1519,35 +1519,24 @@ class PromptTemplate extends LGraphNode {
         this.addInput("var1", "string")
         this.addInput("var2", "string")
         this.addInput("var3", "string")
+        this.addInput("var4", "string")
         this.addOutput("prompt", "string")
         // this.addOutput("text", LiteGraph.EVENT)
 
-        this._prompt = this.addWidget("text", "", "Refer to {var1}", function () { }, { multiline: true })
+        this._prompt = this.addWidget("text", "", "Refer to {var1} and {var2}", function () { }, { multiline: true })
         this._var1 = undefined
         this._var2 = undefined
         this._var3 = undefined
+        this._var4 = undefined
         const that = this
-        // this.addWidget("button", "send", "", function () {
-        //     if (that._prompt.value) {
-        //         let prompt = that._prompt.value
-        //         if (that._var1) {
-        //             prompt = prompt.replace("{var1}", that._var1)
-        //         }
-        //         if (that._var2) {
-        //             prompt = prompt.replace("{var2}", that._var2)
-        //         }
-        //         if (that._var3) {
-        //             prompt = prompt.replace("{var3}", that._var3)
-        //         }
-        //         that.trigger("text", prompt)
-        //     }
-        // })
+        
         this.addWidget("button", "print", "", function () {
             if (that._prompt.value) {
                 let prompt = that._prompt.value
                 if (that._var1) prompt = prompt.replaceAll("{var1}", that._var1)
                 if (that._var2) prompt = prompt.replaceAll("{var2}", that._var2)
                 if (that._var3) prompt = prompt.replaceAll("{var3}", that._var3)
+                if (that._var4) prompt = prompt.replaceAll("{var4}", that._var4)
                 const content = "<pre>" + prompt + "</pre>"
                 addChatMessage({
                     id: uuidv4(),
@@ -1567,6 +1556,7 @@ class PromptTemplate extends LGraphNode {
         this._var1 = this.getInputData(0)
         this._var2 = this.getInputData(1)
         this._var3 = this.getInputData(2)
+        this._var4 = this.getInputData(3)
         let prompt = this._prompt.value
         if (this._var1) {
             prompt = prompt.replaceAll("{var1}", this._var1)
@@ -1576,6 +1566,9 @@ class PromptTemplate extends LGraphNode {
         }
         if (this._var3) {
             prompt = prompt.replaceAll("{var3}", this._var3)
+        }
+        if (this._var4) {
+            prompt = prompt.replaceAll("{var4}", this._var4)
         }
 
         this.setOutputData(0, prompt)
@@ -1591,11 +1584,7 @@ class PromptText extends LGraphNode {
 
         this._prompt = this.addWidget("text", "", "You are a helpful AI assistant.", function () { }, { multiline: true })
         const that = this
-        // this.addWidget("button", "send", "", function () {
-        //     if (that._prompt.value) {
-        //         that.trigger("prompt", that._prompt.value)
-        //     }
-        // })
+        
         this.addWidget("button", "print", "", function () {
             const content = "<pre>" + that._prompt.value + "</pre>"
             addChatMessage({
@@ -1617,7 +1606,7 @@ class PromptText extends LGraphNode {
     }
 }
 
-class PromptIntro extends LGraphNode {
+class PrintMe extends LGraphNode {
     constructor() {
         super()
         this._prompt = this.addWidget("text", "", "## Welcome to myChatbot 🤖", function () { }, { multiline: true })
@@ -1628,10 +1617,7 @@ class PromptIntro extends LGraphNode {
     this.addOutput('prompt', "string")
 
         this.serialize_widgets = true
-        this.title = "Prompt Intro"
-    }
-    onAdded() {
-        this.printIntro(this._prompt.value)
+        this.title = "Print Me"
     }
     printIntro(text) {
         addChatMessage({
@@ -1665,6 +1651,29 @@ class PromptCharacter extends LGraphNode {
         this.addOutput('desc', 'string')
 
         this.title = 'Prompt Character'
+    }
+    onExecute() {
+        this.setOutputData(0, this.properties.name)
+        this.setOutputData(1, this.properties.desc)
+    }
+}
+
+class PromptPersona extends LGraphNode {
+    constructor() {
+        super()
+        // Properties
+        this.properties = {
+            name: get(userInfo).name? get(userInfo).name : 'User',
+            desc: get(userInfo).desc? get(userInfo).desc : `Describe ${get(userInfo).name? get(userInfo).name : 'User'}'s persona`
+        }
+        // Widgets
+        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+        this.addWidget("text", "desc", this.properties.desc, function () { }, { property: "desc", multiline: true })
+        // Output
+        this.addOutput('name', 'string')
+        this.addOutput('desc', 'string')
+
+        this.title = 'Prompt Persona'
     }
     onExecute() {
         this.setOutputData(0, this.properties.name)
@@ -2335,198 +2344,189 @@ class AgentAnthropic extends LGraphNode {
 }
 
 // Perplexity Agent
-class AgentPerplexity extends LGraphNode {
-    constructor() {
-        super()
-        // Properties
-        this.properties = {
-            name: "transfer_to_research",
-            desc: "Transfer to Research Agent for deep research using web search.",
-            model: "llama-3.1-sonar-large-128k-online",
-            temperature: 0.2
-        }
+// class AgentPerplexity extends LGraphNode {
+//     constructor() {
+//         super()
+//         // Properties
+//         this.properties = {
+//             name: "transfer_to_research",
+//             desc: "Transfer to Research Agent for deep research using web search.",
+//             model: "llama-3.1-sonar-huge-128k-online",
+//             temperature: 0.2
+//         }
 
-        this._inputTools = undefined
-        this._messages = []
-        this._call = undefined
+//         this._inputTools = undefined
+//         this._messages = []
+//         this._call = undefined
 
-        // Widgets
-        this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
-        this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
-        this.addWidget("combo", "model",
-            "llama-3.1-sonar-large-128k-online",
-            {
-                values: ["llama-3.1-sonar-large-128k-online",
-                    "llama-3.1-sonar-small-128k-online",
-                    "llama-3.1-sonar-huge-128k-online"],
-                property: "model"
-            }
-        )
-        // this.addWidget("number", "temperature",
-        //     0.2,
-        //     { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
-        // )
-        // Inputs
-        this.addInput("info(chain)", "object")
-        this.addInput("instruction", "string")
-        this.addInput("agent_call", LiteGraph.ACTION)
+//         // Widgets
+//         this.addWidget("text", "name", this.properties.name, function () { }, { property: "name" })
+//         this.addWidget("text", "desc", this.properties.desc, function () { }, { multiline: true, property: "desc" })
+//         // this.addWidget("number", "temperature",
+//         //     0.2,
+//         //     { min: 0, max: 1.0, step: 1, precision: 1, property: "temperature" }
+//         // )
+//         // Inputs
+//         this.addInput("info(chain)", "object")
+//         this.addInput("instruction", "string")
+//         this.addInput("agent_call", LiteGraph.ACTION)
 
-        // Outputs
-        this.addOutput("info(chain)", "object")
-        this.addOutput("agent_result", LiteGraph.EVENT)
+//         // Outputs
+//         this.addOutput("info(chain)", "object")
+//         this.addOutput("agent_result", LiteGraph.EVENT)
 
-        this.title = "Agent (Perplexity)"
-        this.color = "#332922" // brown
-        this.bgcolor = "#593930"
+//         this.title = "Agent (Perplexity)"
+//         this.color = "#332922" // brown
+//         this.bgcolor = "#593930"
 
-        // Flags
-        this._isOk = true
-        this._trigger = false
-    }
-    onAction(action, param) {
-        if (action == 'agent_call') {
-            // check agent name
-            let calls = param.calls
-            this._call = calls.find((item) => item.name == this.properties.name)
-            if (this._call) {
-                // rebuild messages
-                const type = param.type
-                if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
-                else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
-                else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
-                // add user message
-                this._messages = [...this._messages,
-                { role: 'user', content: this._call.arguments.query }]
-                this._trigger = true
-            }
-        }
-    }
-    onExecute() {
-        // Build tool (OpenAI format)
-        let TOOL = [{
-            "agent": {
-                "name": this.properties.name,
-                "description": this.properties.desc,
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The query that is specific and descriptive."
-                        }
-                    }
-                }
-            }
-        }]
+//         // Flags
+//         this._isOk = true
+//         this._trigger = false
+//     }
+//     onAction(action, param) {
+//         if (action == 'agent_call') {
+//             // check agent name
+//             let calls = param.calls
+//             this._call = calls.find((item) => item.name == this.properties.name)
+//             if (this._call) {
+//                 // rebuild messages
+//                 const type = param.type
+//                 if( type == 'openai' ) this._messages = mapOpenAIMessages(param.messages)
+//                 else if(type == 'anthropic') this._messages = mapAnthropicMessages(param.messages)
+//                 else if(type == 'gemini') this._messages = mapGeminiMessages(param.messages)
+//                 // add user message
+//                 this._messages = [...this._messages,
+//                 { role: 'user', content: this._call.arguments.query }]
+//                 this._trigger = true
+//             }
+//         }
+//     }
+//     onExecute() {
+//         // Build tool (OpenAI format)
+//         let TOOL = [{
+//             "agent": {
+//                 "name": this.properties.name,
+//                 "description": this.properties.desc,
+//                 "parameters": {
+//                     "type": "object",
+//                     "properties": {
+//                         "query": {
+//                             "type": "string",
+//                             "description": "The query that is specific and descriptive."
+//                         }
+//                     }
+//                 }
+//             }
+//         }]
 
-        let INPUT_TOOLS = this.getInputData(0)
-        let SYSTEM = this.getInputData(1)
+//         let INPUT_TOOLS = this.getInputData(0)
+//         let SYSTEM = this.getInputData(1)
 
-        if (INPUT_TOOLS) {
-            let parsed = INPUT_TOOLS
-            this.setOutputData(0, [...parsed, ...TOOL])
-        }
-        else {
-            this.setOutputData(0, TOOL)
-        }
+//         if (INPUT_TOOLS) {
+//             let parsed = INPUT_TOOLS
+//             this.setOutputData(0, [...parsed, ...TOOL])
+//         }
+//         else {
+//             this.setOutputData(0, TOOL)
+//         }
 
-        if (this._trigger) {
-            // Build system message
-            if (SYSTEM) {
-                this._messages = [{ role: 'system', content: SYSTEM }, ...this._messages]
-            }
-            // Build Body
-            let body = {
-                model: this.properties.model,
-                temperature: this.properties.temperature,
-                messages: this._messages,
-                stream: true
-            }
-            // console.log('AgentPerplexity', body)
+//         if (this._trigger) {
+//             // Build system message
+//             if (SYSTEM) {
+//                 this._messages = [{ role: 'system', content: SYSTEM }, ...this._messages]
+//             }
+//             // Build Body
+//             let body = {
+//                 model: this.properties.model,
+//                 temperature: this.properties.temperature,
+//                 messages: this._messages,
+//                 stream: true
+//             }
+//             // console.log('AgentPerplexity', body)
 
-            // fatch Message
-            this.fetch(body)
-            this._trigger = false
-        }
-    }
-    fetch(body) {
-        this._eventSource = undefined
-        this._text = ''
-        this._id = undefined
-        this._name = this.title
+//             // fatch Message
+//             this.fetch(body)
+//             this._trigger = false
+//         }
+//     }
+//     fetch(body) {
+//         this._eventSource = undefined
+//         this._text = ''
+//         this._id = undefined
+//         this._name = this.title
 
-        const that = this
+//         const that = this
 
-        try {
-            this._eventSource = new SSE('/api/stream/perplexity', {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                payload: JSON.stringify({ body: body })
-            })
+//         try {
+//             this._eventSource = new SSE('/api/stream/perplexity', {
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//                 payload: JSON.stringify({ body: body })
+//             })
 
-            this._eventSource.addEventListener('error', function (err) {
-                // console.error(err)
-                const errData = JSON.parse(err.data)
-                addChatMessage({
-                    id: uuidv4(),
-                    name: that.title,
-                    color: that.bgcolor,
-                    timestamp: Date.now(),
-                    role: 'assistant',
-                    content: errData?.error.message,
-                    done: false
-                })
-            })
+//             this._eventSource.addEventListener('error', function (err) {
+//                 // console.error(err)
+//                 const errData = JSON.parse(err.data)
+//                 addChatMessage({
+//                     id: uuidv4(),
+//                     name: that.title,
+//                     color: that.bgcolor,
+//                     timestamp: Date.now(),
+//                     role: 'assistant',
+//                     content: errData?.error.message,
+//                     done: false
+//                 })
+//             })
 
-            this._eventSource.addEventListener('message', function (e) {
-                const stream = JSON.parse(e.data)
-                that._id = stream.id
-                const [{ finish_reason }] = stream.choices
-                if (finish_reason === 'stop') {
-                    // citations
-                    let sources = ''
-                    const citations = stream.citations
-                    if(citations) {
-                        citations.forEach((web, index) => {
-                            sources += `${index+1}. ${web}\n`
-                        })
-                        that._text += '\n\n**Citations**\n' + sources
-                    }
-                    // console.log(that._text)
-                    addChatMessage({
-                        id: that._id,
-                        content: that._text,
-                        done: true
-                    })
-                    const agentResult = {
-                        id: that._call.id,
-                        name: that.properties.name,
-                        content: (that._text) ? that._text : ''
-                    }
-                    that.trigger("agent_result", agentResult)
-                }
-                const [{ delta }] = stream.choices
-                if (delta.content) {
-                    that._text = (that._text ?? '') + delta.content
-                    addChatMessage({
-                        id: that._id,
-                        name: that.title,
-                        color: that.bgcolor,
-                        timestamp: Date.now(),
-                        role: 'assistant',
-                        content: that._text,
-                        done: false
-                    })
-                }
-            })
+//             this._eventSource.addEventListener('message', function (e) {
+//                 const stream = JSON.parse(e.data)
+//                 that._id = stream.id
+//                 const [{ finish_reason }] = stream.choices
+//                 if (finish_reason === 'stop') {
+//                     // citations
+//                     let sources = ''
+//                     const citations = stream.citations
+//                     if(citations) {
+//                         citations.forEach((web, index) => {
+//                             sources += `${index+1}. ${web}\n`
+//                         })
+//                         that._text += '\n\n**Citations**\n' + sources
+//                     }
+//                     // console.log(that._text)
+//                     addChatMessage({
+//                         id: that._id,
+//                         content: that._text,
+//                         done: true
+//                     })
+//                     const agentResult = {
+//                         id: that._call.id,
+//                         name: that.properties.name,
+//                         content: (that._text) ? that._text : ''
+//                     }
+//                     that.trigger("agent_result", agentResult)
+//                 }
+//                 const [{ delta }] = stream.choices
+//                 if (delta.content) {
+//                     that._text = (that._text ?? '') + delta.content
+//                     addChatMessage({
+//                         id: that._id,
+//                         name: that.title,
+//                         color: that.bgcolor,
+//                         timestamp: Date.now(),
+//                         role: 'assistant',
+//                         content: that._text,
+//                         done: false
+//                     })
+//                 }
+//             })
 
-        } catch (err) {
-            console.error(err)
-            this._isOk = false
-        }
-    }
-}
+//         } catch (err) {
+//             console.error(err)
+//             this._isOk = false
+//         }
+//     }
+// }
 
 // Agent GoogleSearch
 class AgentGemini extends LGraphNode {
@@ -2953,7 +2953,7 @@ LiteGraph.registerNodeType("prompt/template", PromptTemplate)
 LiteGraph.registerNodeType("agent/openai", AgentOpenAI)
 LiteGraph.registerNodeType("agent/anthropic", AgentAnthropic)
 LiteGraph.registerNodeType("agent/gemini", AgentGemini)
-LiteGraph.registerNodeType("agent/perplexity", AgentPerplexity)
+// LiteGraph.registerNodeType("agent/perplexity", AgentPerplexity)
 LiteGraph.registerNodeType("agent/dall-e", AgentDallE)
 LiteGraph.registerNodeType("agent/speech", AgentSpeech)
 // Utilities
@@ -2962,8 +2962,9 @@ LiteGraph.registerNodeType("utils/printslot", PrintSlot)
 LiteGraph.registerNodeType("utils/divider", Divider)
 LiteGraph.registerNodeType("utils/combiner", Combiner)
 // Character
-LiteGraph.registerNodeType("prompt/intro", PromptIntro)
+LiteGraph.registerNodeType("prompt/printme", PrintMe)
 LiteGraph.registerNodeType("prompt/character", PromptCharacter)
+LiteGraph.registerNodeType("prompt/persona", PromptPersona)
 // OpenAI
 LiteGraph.registerNodeType("openai/speech", OpenAISpeech)
 LiteGraph.registerNodeType("openai/dall-e", OpenAIDallE)
