@@ -11,81 +11,51 @@ https://github.com/user-attachments/assets/9c70968f-8fd4-4169-bf4b-8de75f8b902c
 - ⛓️ **Agentic Workflows**: Utilize advanced techniques, such as chaining Large Language Models (LLMs), to enhance the quality and accuracy of results. (inspired by [OpenAI Swarm](https://github.com/openai/swarm))
 - 🖼️ **Vision Capabilities**: Integrate and process images, allowing for image loading and understanding.
 - 📄 **PDF Support**: Support PDF input and understand both text and visual content within documents. (Anthropic, Gemini)
-- 📢 **Audio Transcription**: Effortlessly load audio files and convert them into text with transcription support.
 - 🎨 **Image Generation**: Create an original image given a text prompt (DALL-E 3)
 - 🔉 **Audio Generation**: Generate a spoken audio response to a prompt. (OpenAI)
 - 📜 **Markdown Support**: Enhanced readability with markdown and syntax highlighting capabilities.
-- 🤖 **Supported LLMs**: OpenAI, Anthropic, Gemini, Perplexity and more LLMs in the future.
+- 🤖 **Supported LLMs**: OpenAI, Anthropic, Gemini and more LLMs in the future.
+- 🩷 **Share Workflows**: Share cool workflows created by other users (Coming Soon)
 - 🌟 **And more...** : Constantly improving with new features!
-
-Node | Image | Audio | PDF |
------|-------|-------|-----|
-OpenAI Chat | O | X | X |
-Anthropic Chat | O | X | O |
-Gemini Chat | O | O | O |
-
 
 ## How to Install
 
-- Clone the repository from Github
+### 1. Get API Keys 🔑
 
-```bash
+- You need to obtain at least one API key from Gemini, Anthropic, or OpenAI.
+- For OpenAI, go to [API keys - OpenAI API](https://platform.openai.com/api-keys) to get your key.
+- For Anthropic, visit [Anthropic Console](https://console.anthropic.com/) to obtain a key.
+- For Gemini, go to [Get a Gemini API key | Google AI for Developers](https://ai.google.dev/gemini-api/docs/api-key) to get your key.
 
-git clone https://github.com/skettee/mychatbot.git
+### 2. Install Docker Desktop 🐋
 
+- For Windows, go to [Windows | Docker Docs](https://docs.docker.com/desktop/setup/install/windows-install/) to download and install Docker Desktop.
+- For Mac, go to [Mac | Docker Docs](https://docs.docker.com/desktop/setup/install/mac-install/) to download and install Docker Desktop.
+
+### 3. Open Docker terminal and pull image 🖥️
+
+- After starting Docker, run `>_ Terminal` at the bottom to enable the Docker Terminal.
+- Enter and execute the following command:
+
+```shell
+docker pull ghcr.io/skettee/mychatbot:latest
 ```
 
-- Install dependencies
+### 4. Run myChatbot Container 🚀
 
-```bash
+- Run the command below and enter your obtained API keys:
 
-cd mychatbot
-npm install
-
+```shell
+docker run -d -p 3001:3001 --name mychatbot --restart always \
+	-e OPENAI_API_KEY=your-openai-api-key \
+	-e ANTHROPIC_API_KEY=your-anthropic-api-key \
+	-e GEMINI_API_KEY=your-gemini-api-key \
+	ghcr.io/skettee/mychatbot:latest
 ```
 
-- Set environment variables
+### 5. Open a Browser 🧭
 
-```bash
-
-# rename .env.example to .env
-# add your api keys
-OPENAI_API_KEY=your-openai-api-key
-ANTHROPIC_API_KEY=your-anthropic-api-key
-GEMINI_API_KEY=your-gemini-api-key
-PERPLEXITY_API_KEY==your-perplexity-api-key
-
-```
-
-- Start a development server
-
-```bash
-
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-
-```
-
-- Build the application
-
-```bash
-
-npm run build
-
-```
-
-- Start the application
-
-```bash
-
-node -r dotenv/config build
-
-# If you use Node.js v20.6+, you can use the `--env-file`
-node --env-file=.env build
-
-```
+- Open your browser and enter the address `localhost:3001`.
 
 ## Examples
 
