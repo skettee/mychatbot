@@ -23,13 +23,13 @@
 <div class="flex w-full">
     <div class="mr-4">
         <div class='relative w-7 h-7 flex justify-center items-center rounded-full {colorVariants[message.color]}'>
-            <span class='text-gray-100 text-sm font-bold'>{message.name.trim()[0].toUpperCase()}</span>
+            <span class='text-gray-100 text-sm font-bold'>{message.name? message.name.trim()[0].toUpperCase() : 'U'}</span>
         </div>
     </div>
     <div class="w-full overflow-hidden">
         <div class="user-message">
             <div class="self-center font-bold mb-0.5 capitalize line-clamp-1">
-                {message.name}
+                {message.name? message.name : 'User'}
                 <span class="invisible group-hover:visible text-gray-400 text-xs font-medium">{timestamp}</span>
             </div>
         </div>

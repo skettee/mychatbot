@@ -1,6 +1,6 @@
 <script>
     // store
-    import {chatMessages, workflows} from '$lib/store'
+    import {chatMessages, userInfo} from '$lib/store'
     // svelte components
     import Sidebar from '../lib/components/Sidebar.svelte';
     import ChatEditor from '../lib/components/ChatEditor.svelte';
@@ -23,26 +23,8 @@
         graph.sendEventToAllNodes("chat", {
             prompt: userPrompt,
             files: userFiles
-        } );
+        } )
     }
-
-    onMount(() => {
-        // localStorage
-        const savedWorkflow = localStorage.getItem("mychatbot")
-        if( savedWorkflow ) {
-            $workflows = JSON.parse(savedWorkflow)
-        }
-        // sessionStorage
-        const savedNode = sessionStorage.getItem("saved-node")
-        if( savedNode ) {
-            graph.configure( JSON.parse( savedNode ) )
-        }
-        else {
-            graph.configure(defaultNode)
-        }
-        // graph start
-        graph.start()
-    })
 
     // Session
     /** @type {import('./$types').Snapshot<string>} */
@@ -57,12 +39,6 @@
         }
 	}
 
-    if( browser ) {
-        window.onbeforeunload = function(){
-            sessionStorage.setItem( "saved-node", JSON.stringify( graph.serialize() ) )
-        }
-    }
-
     $: if($chatMessages) {
         if(messagesContainerElement) {
             tick().then(() => messagesContainerElement.scroll(
@@ -71,12 +47,57 @@
         }
     }
 
+    // Supabase
+    export let data
+    let { supabase, workflows, member } = data
+    $: user = data.user
+
+    onMount(async () => {
+        // console.log('onMount')
+
+        //get userInfo
+        if(user && member[0]) {
+            // get userInfo
+            userInfo.update((user)=>{
+                user.id = member[0].id
+                user.user_id = member[0].user_id
+                user.name = member[0].name
+                user.profile = member[0].profile
+                return user
+            })
+            // console.log($userInfo)
+        }
+
+        // graph configure: sessionStorage > supabase > default
+        const savedNode = sessionStorage.getItem("saved-node")
+        if( savedNode ) {
+            // console.log('from sessionStorage')
+            graph.configure( JSON.parse( savedNode ) )
+        }
+        else if(user && member[0] && member[0].workflow) {
+            // console.log('from supabase')
+            graph.configure( member[0].workflow )
+        }
+        else {
+            graph.configure(defaultNode)
+        }
+        
+        // graph start
+        graph.start()
+    })
+
+    if( browser ) {
+        window.onbeforeunload = function() {
+            sessionStorage.setItem( "saved-node", JSON.stringify( graph.serialize() ) )
+        }
+    }
+
 </script>
 
 <!-- Main Container -->
 <div class="min-h-screen max-h-screen w-full max-w-full flex flex-col">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar {...{user, supabase, workflows}}/>
     <Splitpanes horizontal >
         <Pane size={50} maxSize={70}>
             <!-- LiteGraph -->
