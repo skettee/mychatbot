@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/9c70968f-8fd4-4169-bf4b-8de75f8b902c
 - 🔉 **Audio Generation**: Generate a spoken audio response to a prompt. (OpenAI)
 - 📜 **Markdown Support**: Enhanced readability with markdown and syntax highlighting capabilities.
 - 🤖 **Supported LLMs**: OpenAI, Anthropic, Gemini and more LLMs in the future.
-- 🩷 **Share Workflows**: Share cool workflows created by other users (Coming Soon)
+- 👍 **Share Workflows**: Share cool workflows created by other users (Coming Soon)
 - 🌟 **And more...** : Constantly improving with new features!
 
 ## How to Install
