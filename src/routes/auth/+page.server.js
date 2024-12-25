@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 
-const OAUTH_PROVIDERS = ['github', 'google']
+const OAUTH_PROVIDERS = ['github', 'discord']
 
 /** @type {import('@sveltejs/kit').Actions} */
 export const actions = {
