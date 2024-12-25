@@ -207,7 +207,7 @@
 <div class="fixed top-3 right-1 z-50">
     <button class="p-1.5 mr-1 rounded-lg 
                  text-cyan-600 hover:bg-stone-700"
-            title="Logout" use:tooltip={{ 
+            title="Sign out" use:tooltip={{ 
                 theme: "chat-tooltip",
                 placement: 'left',
                 arrow: false
@@ -222,7 +222,7 @@
 <div class="fixed top-3 right-1 z-50">
     <button class="p-1.5 mr-1 rounded-lg 
                  text-cyan-600 hover:bg-stone-700"
-            title="Login" use:tooltip={{ 
+            title="Sign in" use:tooltip={{ 
                 theme: "chat-tooltip",
                 placement: 'left',
                 arrow: false
